@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Rezervácie - demo": {
+      "commandName": "Project",
+      "commandLineArgs": ""
+    },
+    "Rezervácie - kontroly": {
+      "commandName": "Project",
+      "commandLineArgs": "--self-test"
+    }
+  }
+}

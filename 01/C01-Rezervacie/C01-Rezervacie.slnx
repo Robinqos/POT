@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/starter/">
+    <Project Path="starter/RoomBooking/RoomBooking.csproj" />
+  </Folder>
+</Solution>
