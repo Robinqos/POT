@@ -22,7 +22,6 @@ public class DroneDelivery(string droneCode)
     // TODO: U3c - Použite kľúčové slovo 'new' na skrytie zdedenej metódy GetDiagnostics()
     public new string GetDiagnostics()
     {
-        // TODO: Vráťte špecifický reťazec, napr. "[DRON ŠPECIFICKÉ] Kód: {LicensePlate}, Firmware: v3.1, Letová hladina: 120m AGL."
-        throw new NotImplementedException("U3c: Implementujte GetDiagnostics pomocou 'new'.");
+        return $"[DRON ŠPECIFICKÉ] Kód: {LicensePlate}, Firmware: v3.1, Letová hladina: 120m AGL.";
     }
 }

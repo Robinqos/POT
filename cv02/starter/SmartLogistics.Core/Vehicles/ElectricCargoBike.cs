@@ -15,7 +15,7 @@ public sealed class ElectricCargoBike(string serialNumber)
     // TODO: U3b - Doplňte CalculateCost; Deliver je pripravený.
     public override decimal CalculateCost(double distanceKm)
     {
-        throw new NotImplementedException("U3b: Implementujte CalculateCost v ElectricCargoBike.");
+        return 1.50m + (decimal)distanceKm * 0.15m;
     }
 
     public override void Deliver(Package package)

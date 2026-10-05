@@ -17,7 +17,8 @@ public class DeliveryVan(string licensePlate, double maxCapacityKg, bool isElect
     // TODO: U3a - Prekryte metódu CalculateCost pomocou kľúčového slova 'override' a volania 'base.CalculateCost'
     public override decimal CalculateCost(double distanceKm)
     {
-        throw new NotImplementedException("U3a: Implementujte CalculateCost v DeliveryVan.");
+        decimal baseCost = base.CalculateCost(distanceKm);
+        return IsElectric ? baseCost * 0.75m : baseCost * 1.15m;
     }
 
     public override void Deliver(Package package)

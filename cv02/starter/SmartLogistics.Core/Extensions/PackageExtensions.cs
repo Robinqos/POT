@@ -21,6 +21,8 @@ public static class PackageExtensions
     // TODO: U6b - Implementujte rozširujúcu metódu TotalExpressValue
     public static decimal TotalExpressValue(this IEnumerable<Package> packages)
     {
-        throw new NotImplementedException("U6b: Implementujte TotalExpressValue.");
+        return packages
+            .Where(p => p.Flags.HasFlag(PackageFlags.Express))
+            .Sum(p => p.BasePrice);
     }
 }

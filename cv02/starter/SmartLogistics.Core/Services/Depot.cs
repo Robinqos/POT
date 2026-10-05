@@ -24,7 +24,9 @@ public class Depot(string name, string codePrefix) : IEnumerable<Package>
         get
         {
             // TODO U5a: Reťazcový indexer
-            throw new NotImplementedException("U5a: Reťazcový indexer");
+            return _packages.FirstOrDefault(p =>
+                        string.Equals(p.TrackingNumber, trackingNumber,
+                            StringComparison.OrdinalIgnoreCase));
         }
     }
 
@@ -41,7 +43,18 @@ public class Depot(string name, string codePrefix) : IEnumerable<Package>
     public bool RegisterWithValidation(Package package, int minCodeLength = 6)
     {
         // TODO U5b: Lokálne funkcie
-            throw new NotImplementedException("U5b: Lokálne funkcie");
+        bool IsPrefixValid(string code) =>
+                code.StartsWith(CodePrefix, StringComparison.OrdinalIgnoreCase)
+                && code.Length >= minCodeLength;
+
+        static bool IsWeightValid(double weight) =>
+            weight is > 0.01 and <= 100.0;
+
+        if (!IsPrefixValid(package.TrackingNumber) || !IsWeightValid(package.WeightKg))
+            return false;
+
+        _packages.Add(package);
+        return true;
     }
 
     // Pripravené: Swap mení odovzdané premenné, samotné depo nemení.
@@ -56,7 +69,11 @@ public class Depot(string name, string codePrefix) : IEnumerable<Package>
     public (int TotalCount, decimal TotalValue, double TotalWeightKg) GetStatistics()
     {
         // TODO U5c: Štatistiky depa
-            throw new NotImplementedException("U5c: Štatistiky depa");
+        return (
+                _packages.Count,
+                _packages.Sum(p => p.BasePrice),
+                _packages.Sum(p => p.WeightKg)
+            );
     }
 
     public IEnumerator<Package> GetEnumerator() => _packages.GetEnumerator();

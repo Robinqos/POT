@@ -30,7 +30,8 @@ public class TrackedPackage : ITrackable, ISecureAuditable
     // POZOR: Metóda NESMIE mať modifikátor public a jej názov musí byť 'ISecureAuditable.GetAuditRecord()'.
     string ISecureAuditable.GetAuditRecord()
     {
-        throw new NotImplementedException("U4: Implementujte explicitné rozhranie ISecureAuditable.GetAuditRecord().");
+        return $"[INTERNÝ AUDIT] Balík {Package.TrackingNumber}, " +
+                   $"História: {string.Join(" -> ", _auditTrail)}";
     }
 
     public void UpdateLocation(string newLocation)

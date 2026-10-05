@@ -25,11 +25,18 @@ RunUnit(1, "Hodnotové typy a príznaky", () =>
     var copy = origin;
     Console.WriteLine($"Súradnice pred experimentom: {origin}, kópia: {copy}");
     // EXPERIMENT U1: Za tento komentár pridajte copy = copy with { Latitude = 48.0 };
+    copy = copy with { Latitude = 48.0 };
+    //with vytvorí novú hodnotu (record struct), origin sa nezmení.
     Console.WriteLine($"Súradnice po experimente: pôvodné {origin}, kópia {copy}");
     Console.WriteLine($"Vzdialenosť: {origin.DistanceTo(new(49.2100, 18.7500))} km");
     var flags = PackageFlags.Fragile | PackageFlags.Express;
     Console.WriteLine($"Príznaky pred experimentom: {flags}, číselne {(ushort)flags}");
     // EXPERIMENT U1: Pridajte Heavy pomocou |=, odoberte Fragile pomocou &= ~.
+    flags |= PackageFlags.Heavy;
+    flags &= ~PackageFlags.Fragile;
+    //toto zmení hodnotu flags, ale pôvodné príznaky sa nezmenia.
+    // |= pridá, &= ~ odoberie.
+    //None kontrola: flags == None je False; HasFlag(None) je True
     Console.WriteLine($"Príznaky po experimente: {flags}, číselne {(ushort)flags}");
     Console.WriteLine($"None kontrola: flags == None je {flags == PackageFlags.None}; HasFlag(None) je {flags.HasFlag(PackageFlags.None)}");
 });
@@ -50,6 +57,22 @@ RunUnit(2, "Rekordy a dekonštrukcia", () =>
     var (code, price) = original;
     Console.WriteLine($"Deconstruct: {code}, {price}");
     // EXPERIMENT U2: Skúste original.BasePrice = 99m; preložte a potom riadok zakomentujte.
+    //original.BasePrice = 99m;
+
+    //dostal som chybu: 
+    //Init - only property or indexer 'Package.BasePrice'
+    //can only be assigned in an object initializer,
+    //or on 'this' or 'base' in an instance constructor
+    //or an 'init' accessor.
+
+    /*
+     * Package je pozičný record – kompilátor z parametrov BasePrice 
+     * vygeneroval init-only vlastnosť. Priradiť sa dá len pri vytvorení
+     * objektu (v inicializéri) alebo cez with. Po vytvorení sa už meniť
+     * nedá – to je presne tá „nemennosť", ktorú record podporuje 
+     * (ale nie garantuje úplne, ak by tam boli set vlastnosti).
+     * zmenit cenu sa da cez : var drahsi = original with { BasePrice = 99m };
+     */
 });
 
 RunUnit(3, "Dedičnosť a polymorfizmus", () =>
@@ -76,10 +99,42 @@ RunUnit(4, "Rozhrania a prístup k členom", () =>
     Console.WriteLine(((ISecureAuditable)tracked).GetAuditRecord());
     Console.WriteLine(new LocalFleetSubSecurity().DescribeAccess());
     // EXPERIMENT U4: Skúšajte po jednom, po zistení chyby znovu zakomentujte:
-    // tracked.CurrentLocation = "Obídená história"; // private set
-    // tracked.GetAuditRecord(); // volanie vyžaduje typ rozhrania
+    //tracked.CurrentLocation = "Obídená história"; // private set
+    /*
+     * The property or indexer 'TrackedPackage.CurrentLocation' cannot be used 
+     * in this context because the set accessor is inaccessible
+     */
+
+    //tracked.GetAuditRecord(); // volanie vyžaduje typ rozhrania
+    /*
+     * 'TrackedPackage' does not contain a definition for 'GetAuditRecord'
+     * and no accessible extension method 'GetAuditRecord' accepting a 
+     * first argument of type 'TrackedPackage' could be found 
+     * (are you missing a using directive or an assembly reference?)
+     */
     // tracked.Ping(); // default implementácia vyžaduje typ rozhrania
+    /*
+     * 'TrackedPackage' does not contain a definition for 'Ping' and 
+     * no accessible extension method 'Ping' accepting a first argument of 
+     * type 'TrackedPackage' could be found 
+     * (are you missing a using directive or an assembly reference?)
+     */
     // Console.WriteLine(new FleetSecurityBase().DepotEncryptionKey); // internal v inom zostavení
+    /*
+     * RECAP:
+tracked.CurrentLocation = "Obídená história";
+Chyba: CS0272: The property or indexer 'TrackedPackage.CurrentLocation' cannot be used in this context because the set accessor is inaccessible.
+Vlastnosť má private set, takže mimo triedy sa nastaviť nedá. Správne sa používa UpdateLocation("..."), ktorá aktualizuje aj históriu.
+tracked.GetAuditRecord();
+Chyba: CS1061: 'TrackedPackage' does not contain a definition for 'GetAuditRecord'.
+Explicitná implementácia nie je členom triedy – existuje len cez rozhranie.
+tracked.Ping();
+Chyba: CS1061: 'TrackedPackage' does not contain a definition for 'Ping'.
+Ping je default interface member v ITrackable. Volať sa dá len cez premennú typu ITrackable (napr. ITrackable t = tracked; t.Ping();).
+Console.WriteLine(new FleetSecurityBase().DepotEncryptionKey);
+Chyba: CS0122: 'FleetSecurityBase.DepotEncryptionKey' is inaccessible due to its protection level.
+Vlastnosť je internal, viditeľná len v zostavení SmartLogistics.Core. Program.cs je v zostavení SmartLogistics.App – iné zostavenie, preto neprístupná.
+     */
 });
 
 RunUnit(5, "Depo a metódy", () =>
@@ -116,9 +171,18 @@ RunUnit(6, "Dispečing a rozšírenia", () =>
     Package[] packages = [Create("A", PackageFlags.Express, 15m),
         Create("B", PackageFlags.Express | PackageFlags.Fragile, 25m), Create("C", price: 10m)];
     Console.WriteLine($"Expresná hodnota: {packages.TotalExpressValue()}");
-    var manifest = packages.Select(p => new {p.TrackingNumber, IsUrgent = p.Flags.HasFlag(PackageFlags.Express)});
-    foreach (var item in manifest) Console.WriteLine($"{item.TrackingNumber}: súrne={item.IsUrgent}");
+    //var manifest = packages.Select(p => new {p.TrackingNumber, IsUrgent = p.Flags.HasFlag(PackageFlags.Express)});
+    //foreach (var item in manifest) Console.WriteLine($"{item.TrackingNumber}: súrne={item.IsUrgent}");
     // EXPERIMENT U6: Do anonymného typu pridajte p.WeightKg a vypíšte novú vlastnosť.
+    var manifest = packages.Select(p => new
+    {
+        p.TrackingNumber,
+        p.WeightKg,
+        IsUrgent = p.Flags.HasFlag(PackageFlags.Express)
+    });
+    foreach (var item in manifest)
+        Console.WriteLine($"{item.TrackingNumber}: súrne={item.IsUrgent}, váha={item.WeightKg}");
+
 });
 
 Console.WriteLine($"\nNedokončené bloky: {pending}; neočakávané chyby: {errors}.");

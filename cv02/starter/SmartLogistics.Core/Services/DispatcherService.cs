@@ -21,6 +21,26 @@ public static class DispatcherService
         // 4. >60 km -> diaľkový kamión x1.25
         // 5. Inak -> štandardná dodávka x1.00
         // TODO U6a: Doplňte switch výraz podľa pravidiel vyššie.
-        throw new NotImplementedException("U6a: Switch výraz dispečingu");
+        return (package.Flags, distanceKm, package.WeightKg) switch
+        {
+            (var f, _, _) when f.HasFlag(PackageFlags.RequiresColdChain) =>
+                ("Chladiarenská dodávka", package.BasePrice * 1.50m),
+
+            (var f, <= 5, <= 8)
+                when !f.HasFlag(PackageFlags.Heavy) && !f.HasFlag(PackageFlags.Oversized) =>
+                ("Elektrobicykel", package.BasePrice * 0.90m),
+
+            (_, _, > 20) =>
+                ("Ťažká nákladná dodávka", package.BasePrice * 1.35m),
+
+            (var f, _, _) when f.HasFlag(PackageFlags.Heavy) || f.HasFlag(PackageFlags.Oversized) =>
+                ("Ťažká nákladná dodávka", package.BasePrice * 1.35m),
+
+            (_, > 60, _) =>
+                ("Diaľkový kamión", package.BasePrice * 1.25m),
+
+            _ =>
+                ("Štandardná dodávka", package.BasePrice * 1.00m)
+        };
     }
 }

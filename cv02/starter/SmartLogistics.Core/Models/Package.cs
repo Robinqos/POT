@@ -19,7 +19,8 @@ public record class Package(
     /// </summary>
     public void Deconstruct(out string trackingNumber, out decimal basePrice)
     {
-        // TODO: Nastavte výstupné parametre trackingNumber a basePrice
-        throw new NotImplementedException("U2: Implementujte vlastnú Deconstruct metódu.");
+        // Nastavte výstupné parametre trackingNumber a basePrice
+        trackingNumber = TrackingNumber;
+        basePrice = BasePrice;
     }
 }
