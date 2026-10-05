@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="SmartLogistics.App/SmartLogistics.App.csproj" />
+  <Project Path="SmartLogistics.Core/SmartLogistics.Core.csproj" />
+  <Project Path="SmartLogistics.Tests/SmartLogistics.Tests.csproj" />
+</Solution>

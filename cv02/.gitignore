@@ -1,0 +1,6 @@
+**/bin/
+**/obj/
+**/.vs/
+.review/
+__pycache__/
+*.user
