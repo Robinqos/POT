@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PlaylistLab.App")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+da0884ab4958f61a6a74ce20df804044fbec3caf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+307c5710ec917f36a366abb9207e7633958f81e5")]
 [assembly: System.Reflection.AssemblyProductAttribute("PlaylistLab.App")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PlaylistLab.App")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

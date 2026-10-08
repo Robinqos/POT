@@ -1,0 +1,81 @@
+OTAZKY a ODPOVEDE
+NEMAM DOKONCENE CHCEL SOM SI POZRIET ESTE OD 13 strany to pdf
+
+
+*Vsetky implementacie su v DoublyLinkedList.cs v .App projekte
+U2:
+Prečo pri odstránení jedinej položky opraviť oba konce? 
+Lebo _first aj _last ukazujú na ten istý uzol. 
+Ak by si opravil len _first, _last by ukazoval na odobratý uzol – zoznam by bol „poškodený" a AddLast by pripojil nový uzol za neexistujúci.
+
+Prečo foreach namiesto for s indexerom? 
+Indexer this[int] je O(n) – pre každý prvok prejde zoznam od začiatku. foreach (cez GetEnumerator) prejde zoznam raz v O(n) celkovo.
+Pre veľké zoznamy je to obrovský rozdiel.
+
+Prečo _version? 
+Enumerátor si pri vytvorení zapamätá _version. Ak sa zoznam počas iterácie zmení, EnsureUnchanged vyhodí 
+InvalidOperationException – zabráni „undefined behavior" (napr. preskočenie prvkov alebo cyklus).
+
+Prečo EnsureSpace() pred zmenou uzlov? 
+Aby sa pri plnej kapacite nezmenil žiadny stav – Count, _first, _last, _version, OnChanged zostanú nedotknuté. 
+Inak by si mal zoznam v nekonzistentnom stave (napr. Count by sa zvýšil, ale uzol by nebol pridaný).
+
+U3:
+Link : https://learn.microsoft.com/en-us/visualstudio/debugger/navigating-through-code-with-the-debugger?view=visualstudio&tabs=csharp
+Kedy sa telo iterátora začne vykonávať? 
+Až pri prvom MoveNext, nie pri volaní GetEnumerator() ani EnumerateForward(...).
+
+Rozdiel IEnumerable<T> vs IEnumerator<T>? 
+IEnumerable<T> je továreň (GetEnumerator), IEnumerator<T> je stavový automat jedného priechodu (MoveNext, Current, Dispose).
+
+Prečo Reverse() nezachytí verziu až pri foreach?
+Lebo Reverse() je metóda, ktorá vráti IEnumerable<T> – verzia sa zachytí pri volaní metódy (v EnumerateReverse(_version)), nie pri GetEnumerator v foreach.
+
+Prečo kontrola aj po cykle?
+Aby sa zachytila zmena medzi posledným yield a posledným MoveNext, ktoré vracia false.
+
+Prečo foreach namiesto for s indexerom?
+Indexer je O(n) na jeden prístup → for cyklus O(n²). foreach prejde zoznam raz v O(n).
+
+U4:
+Prečo Changed je nullable? 
+Lebo udalosť môže mať nula odberateľov – vtedy je null. ?.Invoke to rieši bez výnimky.
+
+Prečo e.Count obsahuje počet až po operácii?
+Lebo OnChanged sa volá po zmene Count. Odberateľ tak vidí konzistentný stav.
+
+Rozdiel event vs verejný delegát?
+event zakazuje zvonka = (priradenie) a Invoke (vyvolanie), čím chráni zapuzdrenie. Verejný delegát to dovoľuje.
+
+Prečo -= musí použiť tú istú inštanciu delegáta? 
+Lebo += a -= porovnávajú referencie na delegátov, nie ich telo. Každá nová lambda je nová inštancia.
+
+Čo sa stane pri zlyhanej operácii? 
+EnsureSpace vyhodí výnimku pred OnChanged, takže udalosť sa nevyvolá.
+
+Čo je sender?
+Objekt, ktorý udalosť vyvolal – v našom prípade this (kolekcia). Odberateľ tak vie, ktorá kolekcia zmenu oznámila, ak je prihlásený na viac kolekcií.
+
+U5:
+Prečo foreach (var item in this) a nie manuálny cyklus cez _first/_last?
+-foreach využije existujúci EnumerateForward, ktorý už má kontrolu verzie. Nemusíš ju duplikovať.
+-this je IEnumerable<T> – foreach naň funguje prirodzene.
+-Keby si manuálne prechádzal _first → Next, musel by si sám volať EnsureUnchanged(expectedVersion) – ale expectedVersion nemáš (nie je parameter FilterIterator). Preto je foreach cez this správna voľba.
+
+Koľkokrát sa podmienka vykoná pri vytvorení query? 
+0 – odložené vykonanie.
+
+Čo sa zmení po nastavení limit na 100? 
+Druhý priechod vráti T03 (T01 je dlhšia ako 100 s). Prvý snapshot zostáva T03, T01.
+
+Prečo snapshot zostáva nezmenený? 
+ToList() vytvoril nezávislý zoznam v čase, keď limit = 180. Neskoršia zmena limit ovplyvní len ďalšie priechody query, nie už vytvorený snapshot.
+
+Čo je Func<T, bool>? 
+Delegát, ktorý prijme T a vráti bool. Lambda je konkrétna inštancia.
+
+Prečo foreach (var item in this) a nie manuálny cyklus? 
+foreach využije EnumerateForward, ktorý už obsahuje kontrolu verzie. Nemusíš ju duplikovať.
+
+Prečo filter nezmení pôvodnú kolekciu? 
+FilterIterator len číta a yield return-uje položky. Žiadne Add/Remove sa nevolá.

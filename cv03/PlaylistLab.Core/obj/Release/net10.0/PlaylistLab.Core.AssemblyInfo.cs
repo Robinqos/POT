@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("Generický obojsmerný zoznam a register položiek pre Playlist Lab.")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+da0884ab4958f61a6a74ce20df804044fbec3caf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+307c5710ec917f36a366abb9207e7633958f81e5")]
 [assembly: System.Reflection.AssemblyProductAttribute("PlaylistLab.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PlaylistLab.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

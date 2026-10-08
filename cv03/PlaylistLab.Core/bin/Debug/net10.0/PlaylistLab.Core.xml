@@ -1,0 +1,167 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PlaylistLab.Core</name>
+    </assembly>
+    <members>
+        <member name="T:PlaylistLab.Core.Collections.CollectionChangeKind">
+            <summary>Druh úspešnej zmeny kolekcie.</summary>
+        </member>
+        <member name="F:PlaylistLab.Core.Collections.CollectionChangeKind.Added">
+            <summary>Položka bola pridaná.</summary>
+        </member>
+        <member name="F:PlaylistLab.Core.Collections.CollectionChangeKind.Removed">
+            <summary>Položka bola odstránená.</summary>
+        </member>
+        <member name="T:PlaylistLab.Core.Collections.CollectionChangedEventArgs`1">
+            <summary>Údaje o zmene kolekcie po dokončení operácie.</summary>
+            <typeparam name="T">Typ položky.</typeparam>
+            <param name="kind">Druh zmeny.</param>
+            <param name="item">Pridaná alebo odstránená položka.</param>
+            <param name="count">Počet položiek po zmene.</param>
+        </member>
+        <member name="M:PlaylistLab.Core.Collections.CollectionChangedEventArgs`1.#ctor(PlaylistLab.Core.Collections.CollectionChangeKind,`0,System.Int32)">
+            <summary>Údaje o zmene kolekcie po dokončení operácie.</summary>
+            <typeparam name="T">Typ položky.</typeparam>
+            <param name="kind">Druh zmeny.</param>
+            <param name="item">Pridaná alebo odstránená položka.</param>
+            <param name="count">Počet položiek po zmene.</param>
+        </member>
+        <member name="P:PlaylistLab.Core.Collections.CollectionChangedEventArgs`1.Kind">
+            <summary>Druh zmeny.</summary>
+        </member>
+        <member name="P:PlaylistLab.Core.Collections.CollectionChangedEventArgs`1.Item">
+            <summary>Položka, ktorej sa zmena týka.</summary>
+        </member>
+        <member name="P:PlaylistLab.Core.Collections.CollectionChangedEventArgs`1.Count">
+            <summary>Počet položiek po zmene.</summary>
+        </member>
+        <member name="T:PlaylistLab.Core.Collections.DoublyLinkedList`1">
+            <summary>Obojsmerný zoznam s kapacitou, iterovaním a udalosťami. Nie je vláknovo bezpečný.</summary>
+            <typeparam name="T">Typ položiek; zoznam povoľuje opakovanie aj null položky.</typeparam>
+        </member>
+        <member name="M:PlaylistLab.Core.Collections.DoublyLinkedList`1.#ctor(System.Int32)">
+            <summary>Vytvorí prázdny zoznam.</summary>
+            <param name="capacity">Najvyšší povolený počet položiek.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">Kapacita nie je kladná.</exception>
+        </member>
+        <member name="P:PlaylistLab.Core.Collections.DoublyLinkedList`1.Capacity">
+            <summary>Najvyšší povolený počet položiek.</summary>
+        </member>
+        <member name="P:PlaylistLab.Core.Collections.DoublyLinkedList`1.Count">
+            <summary>Aktuálny počet položiek.</summary>
+        </member>
+        <member name="E:PlaylistLab.Core.Collections.DoublyLinkedList`1.Changed">
+            <summary>Oznámenie po každom úspešnom pridaní alebo odstránení.</summary>
+        </member>
+        <member name="P:PlaylistLab.Core.Collections.DoublyLinkedList`1.Item(System.Int32)">
+            <summary>Vráti položku na indexe. Prístup má zložitosť O(n).</summary>
+            <param name="index">Index od nuly.</param>
+            <returns>Položka na danom indexe.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">Index je mimo zoznamu.</exception>
+        </member>
+        <member name="M:PlaylistLab.Core.Collections.DoublyLinkedList`1.AddFirst(`0)">
+            <summary>Pridá položku na začiatok. Pripravená operácia na porovnanie s AddLast.</summary>
+            <param name="item">Položka, ktorú pridáme.</param>
+            <exception cref="T:System.InvalidOperationException">Zoznam je plný.</exception>
+        </member>
+        <member name="M:PlaylistLab.Core.Collections.DoublyLinkedList`1.AddLast(`0)">
+            <summary>Pridá položku na koniec v O(1).</summary>
+            <param name="item">Položka, ktorú pridáme.</param>
+            <exception cref="T:System.InvalidOperationException">Zoznam je plný; obsah sa nemení.</exception>
+        </member>
+        <member name="M:PlaylistLab.Core.Collections.DoublyLinkedList`1.RemoveFirst">
+            <summary>Odstráni prvú položku v O(1).</summary>
+            <returns>Odstránená položka.</returns>
+            <exception cref="T:System.InvalidOperationException">Zoznam je prázdny.</exception>
+        </member>
+        <member name="M:PlaylistLab.Core.Collections.DoublyLinkedList`1.RemoveLast">
+            <summary>Odstráni poslednú položku. Pripravená operácia na porovnanie s RemoveFirst.</summary>
+            <returns>Odstránená položka.</returns>
+            <exception cref="T:System.InvalidOperationException">Zoznam je prázdny.</exception>
+        </member>
+        <member name="M:PlaylistLab.Core.Collections.DoublyLinkedList`1.GetEnumerator">
+            <summary>Vytvorí nový dopredný enumerátor. Zmena zoznamu ho zneplatní.</summary>
+            <returns>Samostatný enumerátor.</returns>
+        </member>
+        <member name="M:PlaylistLab.Core.Collections.DoublyLinkedList`1.Reverse">
+            <summary>Poskytne spätné iterovanie bez vytvorenia kópie.</summary>
+            <returns>Postupnosť od poslednej položky po prvú.</returns>
+            <exception cref="T:System.InvalidOperationException">Zoznam sa po získaní postupnosti zmení.</exception>
+        </member>
+        <member name="M:PlaylistLab.Core.Collections.DoublyLinkedList`1.WhereMatches(System.Func{`0,System.Boolean})">
+            <summary>Vytvorí lenivo vyhodnocovaný filter. Samotné volanie nespúšťa predikát.</summary>
+            <param name="predicate">Podmienka prijatia položky.</param>
+            <returns>Vyhovujúce položky v pôvodnom poradí vrátane opakovaní.</returns>
+            <exception cref="T:System.ArgumentNullException">Predikát je null.</exception>
+            <exception cref="T:System.InvalidOperationException">Zoznam sa počas prechádzania zmení.</exception>
+        </member>
+        <member name="T:PlaylistLab.Core.Models.IIdentifiable">
+            <summary>Položka s identifikátorom vhodným ako kľúč registra.</summary>
+        </member>
+        <member name="P:PlaylistLab.Core.Models.IIdentifiable.Id">
+            <summary>Neprázdny identifikátor položky.</summary>
+        </member>
+        <member name="T:PlaylistLab.Core.Models.Track">
+            <summary>Nemenné údaje o skladbe. Zvukový súbor nie je súčasťou modelu.</summary>
+        </member>
+        <member name="P:PlaylistLab.Core.Models.Track.Id">
+            <summary>Identifikátor skladby.</summary>
+        </member>
+        <member name="P:PlaylistLab.Core.Models.Track.Title">
+            <summary>Názov skladby.</summary>
+        </member>
+        <member name="P:PlaylistLab.Core.Models.Track.Artist">
+            <summary>Meno interpreta.</summary>
+        </member>
+        <member name="P:PlaylistLab.Core.Models.Track.Album">
+            <summary>Album alebo null, ak údaj chýba.</summary>
+        </member>
+        <member name="P:PlaylistLab.Core.Models.Track.DurationSeconds">
+            <summary>Kladná dĺžka skladby v sekundách.</summary>
+        </member>
+        <member name="M:PlaylistLab.Core.Models.Track.#ctor(System.String,System.String,System.String,System.Int32,System.String)">
+            <summary>Vytvorí platnú skladbu.</summary>
+            <param name="id">Neprázdne ID.</param>
+            <param name="title">Neprázdny názov.</param>
+            <param name="artist">Neprázdne meno interpreta.</param>
+            <param name="durationSeconds">Kladná dĺžka v sekundách.</param>
+            <param name="album">Voliteľný album.</param>
+            <exception cref="T:System.ArgumentException">Textový povinný údaj je prázdny.</exception>
+            <exception cref="T:System.ArgumentNullException">Povinný textový údaj je null.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Dĺžka nie je kladná.</exception>
+        </member>
+        <member name="T:PlaylistLab.Core.Services.ItemCatalog`1">
+            <summary>Register jedinečných ID bez rozlišovania veľkosti písmen.</summary>
+            <typeparam name="T">Referenčný typ s vlastnosťou Id.</typeparam>
+        </member>
+        <member name="P:PlaylistLab.Core.Services.ItemCatalog`1.Count">
+            <summary>Počet jedinečných položiek.</summary>
+        </member>
+        <member name="P:PlaylistLab.Core.Services.ItemCatalog`1.Items">
+            <summary>Pohľad na hodnoty registra. Poradie nie je súčasťou kontraktu.</summary>
+        </member>
+        <member name="M:PlaylistLab.Core.Services.ItemCatalog`1.Register(`0)">
+            <summary>Zaregistruje novú položku bez prepísania existujúceho ID.</summary>
+            <param name="item">Položka s neprázdnym ID.</param>
+            <returns>True pri vložení, false pri duplicitnom ID.</returns>
+            <exception cref="T:System.ArgumentNullException">Položka je null.</exception>
+            <exception cref="T:System.ArgumentException">ID je prázdne alebo obsahuje len medzery.</exception>
+        </member>
+        <member name="M:PlaylistLab.Core.Services.ItemCatalog`1.TryGet(System.String,`0@)">
+            <summary>Pokúsi sa nájsť položku podľa ID.</summary>
+            <param name="id">Neprázdne ID.</param>
+            <param name="item">Nájdená položka pri true, inak null.</param>
+            <returns>True, ak ID existuje.</returns>
+            <exception cref="T:System.ArgumentException">ID je prázdne.</exception>
+            <exception cref="T:System.ArgumentNullException">ID je null.</exception>
+        </member>
+        <member name="M:PlaylistLab.Core.Services.ItemCatalog`1.GetOrDefault(System.String)">
+            <summary>Vráti položku alebo null pri neexistujúcom ID.</summary>
+            <param name="id">Neprázdne ID.</param>
+            <returns>Nájdená položka alebo null.</returns>
+            <exception cref="T:System.ArgumentException">ID je prázdne.</exception>
+            <exception cref="T:System.ArgumentNullException">ID je null.</exception>
+        </member>
+    </members>
+</doc>

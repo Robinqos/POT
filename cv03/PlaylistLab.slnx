@@ -1,5 +1,8 @@
 <Solution>
-  <Project Path="PlaylistLab.Core/PlaylistLab.Core.csproj" />
+  <Folder Name="/Solution Items/">
+    <File Path="Odpovede.txt" />
+  </Folder>
   <Project Path="PlaylistLab.App/PlaylistLab.App.csproj" />
+  <Project Path="PlaylistLab.Core/PlaylistLab.Core.csproj" />
   <Project Path="PlaylistLab.Tests/PlaylistLab.Tests.csproj" />
 </Solution>

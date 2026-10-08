@@ -65,7 +65,25 @@ public sealed class DoublyLinkedList<T> : IEnumerable<T>
     {
         // BEGIN U2a
         // TODO U2a: Pridajte položku na koniec podľa kontraktu.
-        throw new NotImplementedException("U2a: Pridajte položku na koniec podľa kontraktu.");
+        EnsureSpace();
+
+        var node = new DoublyLinkedNode<T>(item) { Previous = _last };
+
+        if (_last is null)
+        {
+            // Zoznam bol prázdny – nový uzol je aj prvý, aj posledný
+            _first = node;
+        }
+        else
+        {
+            // Spoj pôvodný posledný uzol s novým
+            _last.Next = node;
+        }
+
+        _last = node;
+        Count++;
+        _version++;
+        OnChanged(CollectionChangeKind.Added, item);
         // END U2a
     }
 
@@ -76,7 +94,26 @@ public sealed class DoublyLinkedList<T> : IEnumerable<T>
     {
         // BEGIN U2b
         // TODO U2b: Odstráňte prvú položku a opravte krajné uzly.
-        throw new NotImplementedException("U2b: Odstráňte prvú položku a opravte krajné uzly.");
+        var node = _first ?? throw new InvalidOperationException("Zoznam je prázdny.");
+
+        _first = node.Next;
+
+        if (_first is null)
+        {
+            // Zoznam mal len jednu položku – po odobratí je prázdny
+            _last = null;
+        }
+        else
+        {
+            // Nový prvý uzol už nemá predchodcu
+            _first.Previous = null;
+        }
+
+        node.Next = null;   // odpojenie odobratého uzla
+        Count--;
+        _version++;
+        OnChanged(CollectionChangeKind.Removed, node.Value);
+        return node.Value;
         // END U2b
     }
 
@@ -110,7 +147,12 @@ public sealed class DoublyLinkedList<T> : IEnumerable<T>
     {
         // BEGIN U3a
         // TODO U3a: Iterujte od _first cez Next pomocou yield.
-        throw new NotImplementedException("U3a: Iterujte od _first cez Next pomocou yield.");
+        for (var node = _first; node is not null; node = node.Next)
+        {
+            EnsureUnchanged(expectedVersion);
+            yield return node.Value;
+        }
+        EnsureUnchanged(expectedVersion);
         // END U3a
     }
 
@@ -118,7 +160,12 @@ public sealed class DoublyLinkedList<T> : IEnumerable<T>
     {
         // BEGIN U3b
         // TODO U3b: Iterujte od _last cez Previous pomocou yield.
-        throw new NotImplementedException("U3b: Iterujte od _last cez Previous pomocou yield.");
+        for (var node = _last; node is not null; node = node.Previous)
+        {
+            EnsureUnchanged(expectedVersion);
+            yield return node.Value;
+        }
+        EnsureUnchanged(expectedVersion);
         // END U3b
     }
 
@@ -127,7 +174,16 @@ public sealed class DoublyLinkedList<T> : IEnumerable<T>
         // BEGIN U4
         // TODO U4: Oznámte úspešnú zmenu cez Changed?.Invoke.
         // Prázdne telo zatiaľ umožní skúšať iné bloky nezávisle.
-        _ = Changed;
+        Changed?.Invoke(this, new CollectionChangedEventArgs<T>(kind, item, Count));
+        /*
+         * Vysvetlenie:
+         * Changed?.Invoke(...) – null-conditional operátor. Ak Changed je null (žiadni odberatelia), volanie sa preskočí – žiadna výnimka.
+         * this – sender udalosti. Odberateľ tak vie, ktorá kolekcia zmenu oznámila.
+         * new CollectionChangedEventArgs<T>(kind, item, Count) – údaje o zmene:
+         * kind – Added alebo Removed
+         * item – pridaná/odobratá položka
+         * Count – aktuálny počet po zmene. Preto sa Count v AddFirst/AddLast zvýši pred OnChanged a v RemoveFirst/RemoveLast zníži pred OnChanged.
+         */
         // END U4
     }
 
@@ -146,8 +202,18 @@ public sealed class DoublyLinkedList<T> : IEnumerable<T>
     {
         // BEGIN U5
         // TODO U5: Vráťte vyhovujúce položky cez yield.
-        throw new NotImplementedException("U5: Vráťte vyhovujúce položky cez yield.");
+        foreach (var item in this)
+        {
+            if (predicate(item))
+                yield return item;
+        }
         // END U5
+        /*
+         * if (predicate(item)) – zavolá lambda/predikát. Ak vráti true, položka sa pošle ďalej cez yield return.
+         * yield return item; – položka sa vráti lenivo – až keď ju foreach/ToList vyžiada.
+         * Žiadne pole, žiadny List<T> – žiadna kópia kolekcie.
+         * Poradie a opakovania zostávajú – foreach ide od _first po _last, yield return vracia v tom istom poradí. Ak je položka v zozname viackrát, prejde aj viackrát.
+         */
     }
 
     private void EnsureSpace()

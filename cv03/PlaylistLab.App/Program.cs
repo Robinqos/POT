@@ -86,6 +86,15 @@ Run("U4", () =>
     values.RemoveLast();
     Console.WriteLine($"Počítadlo {notifications}, história {history.Count}; očakávame 2 a 1");
     foreach (var line in history) Console.WriteLine(line);
+
+    // EXPERIMENT 2: 3.odberatel
+    EventHandler<CollectionChangedEventArgs<int>> extra =
+        (_, e) => Console.WriteLine($"Extra: {e.Item}, počet {e.Count}");
+    values.Changed += extra;
+    values.AddLast(99);          // extra dostane udalost
+    values.Changed -= extra;     // odhlasenie tou istou instanciou
+    values.AddLast(100);         // extra uz nedostane udalost
+
     return notifications == 2 && history.Count == 1;
 });
 Run("U5", () =>

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PlaylistLab.App": {
+      "commandName": "Project",
+      "commandLineArgs": "--basic"
+    }
+  }
+}
