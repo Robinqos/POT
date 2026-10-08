@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageId>PlaylistLab.Core</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>POT</Authors>
+    <Description>Generický obojsmerný zoznam a register položiek pre Playlist Lab.</Description>
+    <PackageReadmeFile>PACKAGE_README.md</PackageReadmeFile>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="PACKAGE_README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>
