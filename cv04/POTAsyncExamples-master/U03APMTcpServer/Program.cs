@@ -1,0 +1,3 @@
+﻿APMTcpServer.Serve();
+
+Helpers.Wait();

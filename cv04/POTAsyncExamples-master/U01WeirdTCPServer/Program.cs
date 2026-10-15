@@ -1,0 +1,3 @@
+﻿WeirdTcpServer.Serve();
+
+Helpers.Wait();
