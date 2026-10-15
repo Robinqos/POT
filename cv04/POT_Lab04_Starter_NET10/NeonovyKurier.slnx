@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="NeonovyKurier.Core/NeonovyKurier.Core.csproj" />
+  <Project Path="NeonovyKurier.Cli/NeonovyKurier.Cli.csproj" />
+  <Project Path="NeonovyKurier.Tests/NeonovyKurier.Tests.csproj" />
+  <Project Path="NeonovyKurier.Desktop/NeonovyKurier.Desktop.csproj" />
+</Solution>

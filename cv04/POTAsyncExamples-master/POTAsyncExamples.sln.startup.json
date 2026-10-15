@@ -1,0 +1,54 @@
+/*
+    This is a configuration file for the SwitchStartupProject Visual Studio Extension
+    See https://heptapod.host/thirteen/switchstartupproject/blob/branch/current/Configuration.md
+*/
+{
+  /*  Configuration File Version  */
+  "Version": 3,
+
+  /*  Create an item in the dropdown list for each project in the solution?  */
+  "ListAllProjects": false,
+
+  "MultiProjectConfigurations": {
+    "U01" : {
+      "Projects": {
+        "U01WeirdTCPServer" : {}
+      }
+    },
+    "U02" : {
+      "Projects": {
+        "U02ThreadedTcpServer" : {}
+      }
+    },
+    "U03" : {
+      "Projects": {
+        "U03APMTcpServer" : {}
+      }
+    },
+    "U04" : {
+      "Projects": {
+        "U04TAPTcpServer" : {}
+      }
+    },
+    "U05" : {
+      "Projects": {
+        "U05AsyncTcpServer" : {}
+      }
+    },
+    "U07" : {
+      "Projects": {
+        "U07SynchronizationContext" : {}
+      }
+    },
+    "U07a" : {
+      "Projects": {
+        "U07aWinFormsSyncContext" : {}
+      }
+    },
+    "U07b" : {
+      "Projects": {
+        "U07bWpfSyncContext" : {}
+      }
+    }
+  }
+}

@@ -1,0 +1,3 @@
+﻿ThreadedTcpServer.Serve();
+
+Helpers.Wait();

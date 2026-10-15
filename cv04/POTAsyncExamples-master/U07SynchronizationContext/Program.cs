@@ -1,0 +1,3 @@
+﻿SyncContext.Show();
+
+Helpers.Wait();
