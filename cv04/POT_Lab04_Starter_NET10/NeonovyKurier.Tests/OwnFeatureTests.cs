@@ -3,13 +3,6 @@ using NeonovyKurier.Core;
 
 namespace NeonovyKurier.Tests;
 
-// U6: sem pridajte aspoň tri vlastné testy DownloadWithCacheAsync. Vzory sú v DownloadTests.cs.
-//
-// ControlledHandler nahrádza sieť:
-// - požiadavku identifikuje cesta bez lomky: Route "/theme" -> "theme",
-// - handler.Complete("theme", "obsah") alebo Complete("theme", "chyba", HttpStatusCode.ServiceUnavailable)
-//   pripraví odpoveď; môžete ho zavolať pred aj po začatí požiadavky,
-// - await handler.StartedAsync("theme") počká, kým služba požiadavku naozaj začne.
 public sealed class OwnFeatureTests
 {
     private static readonly GameAsset Theme = new("theme", "theme.json", "/theme", Required: false);
@@ -17,7 +10,6 @@ public sealed class OwnFeatureTests
     private static HttpClient Client(ControlledHandler handler)
         => new(handler) { BaseAddress = new Uri("http://localhost/") };
 
-    // Dočasný priečinok pre cache. Na konci testu ho zmažte vo finally.
     private static string NewCacheDirectory()
     {
         string directory = Path.Combine(Path.GetTempPath(), "NeonovyKurierTests", Guid.NewGuid().ToString("N"));
@@ -25,23 +17,76 @@ public sealed class OwnFeatureTests
         return directory;
     }
 
-    // Kostra prvého testu. Odkomentujte ju a doplňte časti označené "...".
-    //
-    // [Fact]
-    // public async Task U6_HttpFailure_OptionalAssetWithCache_ReturnsCachedContent()
-    // {
-    //     string directory = NewCacheDirectory();
-    //     try
-    //     {
-    //         await File.WriteAllTextAsync(Path.Combine(directory, Theme.FileName), "OLD");
-    //         using var handler = new ControlledHandler();
-    //         using var client = Client(handler);
-    //         handler.Complete("theme", "Výpadok", HttpStatusCode.ServiceUnavailable);
-    //
-    //         DownloadResult result = await new DownloadService(client).DownloadWithCacheAsync(Theme, directory);
-    //
-    //         Assert.Equal(...);
-    //     }
-    //     finally { Directory.Delete(directory, true); }
-    // }
+    // 1. HTTP 503 + voliteľný súbor + existujúca cache → vráti starý obsah, FromCache = true
+    [Fact]
+    public async Task U6_HttpFailure_OptionalAssetWithCache_ReturnsCachedContent()
+    {
+        string directory = NewCacheDirectory();
+        try
+        {
+            await File.WriteAllTextAsync(Path.Combine(directory, Theme.FileName), "OLD");
+            using var handler = new ControlledHandler();
+            using var client = Client(handler);
+            handler.Complete("theme", "Výpadok", HttpStatusCode.ServiceUnavailable);
+
+            DownloadResult result = await new DownloadService(client)
+                .DownloadWithCacheAsync(Theme, directory);
+
+            Assert.Equal("OLD", result.Content);
+            Assert.True(result.FromCache);
+            Assert.Same(Theme, result.Asset);
+        }
+        finally { Directory.Delete(directory, true); }
+    }
+
+    // 2. Úspešná HTTP odpoveď → vráti NOVÝ obsah, FromCache = false (cache sa nepoužije)
+    [Fact]
+    public async Task U6_HttpSuccess_ReturnsFreshContentAndFromCacheFalse()
+    {
+        string directory = NewCacheDirectory();
+        try
+        {
+            // aj keď existuje stará cache, pri úspešnom HTTP sa nesmie použiť
+            await File.WriteAllTextAsync(Path.Combine(directory, Theme.FileName), "OLD");
+            using var handler = new ControlledHandler();
+            using var client = Client(handler);
+            handler.Complete("theme", "NEW");
+
+            DownloadResult result = await new DownloadService(client)
+                .DownloadWithCacheAsync(Theme, directory);
+
+            Assert.Equal("NEW", result.Content);
+            Assert.False(result.FromCache);
+            Assert.Same(Theme, result.Asset);
+        }
+        finally { Directory.Delete(directory, true); }
+    }
+
+    // 3. Zrušenie po začatí požiadavky sa propaguje aj keď cache existuje
+    [Fact]
+    public async Task U6_Cancellation_AfterRequestStarted_PropagatesEvenWithCache()
+    {
+        string directory = NewCacheDirectory();
+        try
+        {
+            await File.WriteAllTextAsync(Path.Combine(directory, Theme.FileName), "OLD");
+            using var handler = new ControlledHandler();
+            using var client = Client(handler);
+            using var cts = new CancellationTokenSource();
+
+            Task<DownloadResult> task = new DownloadService(client)
+                .DownloadWithCacheAsync(Theme, directory, cts.Token);
+
+            // synchronizačný bod: počkáme, kým požiadavka reálne začala
+            await handler.StartedAsync("theme");
+
+            // teraz zrušíme — nesmie sa stať, že sa vráti stará cache
+            cts.Cancel();
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => task);
+        }
+        finally { Directory.Delete(directory, true); }
+    }
+
 }
+
