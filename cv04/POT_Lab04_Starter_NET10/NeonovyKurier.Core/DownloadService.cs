@@ -12,7 +12,7 @@ public sealed class DownloadService
         _progress = progress;
     }
 
-    public Task<DownloadResult> DownloadAssetAsync(GameAsset asset,
+    public async Task<DownloadResult> DownloadAssetAsync(GameAsset asset,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(asset);
@@ -20,33 +20,46 @@ public sealed class DownloadService
         _progress?.Report(new(asset.Id, "START"));
         // BEGIN U2
         // TODO U2: kontrakt a nápoveda sú v NAVOD.md.
-        throw new NotImplementedException("U2 DownloadAssetAsync (Core/DownloadService.cs)");
+        string content = await _client.GetStringAsync(asset.Route, cancellationToken);
+        _progress?.Report(new(asset.Id, "DONE"));
+        return new DownloadResult(asset, content);
         // END U2
     }
 
-    public Task<DownloadResult[]> DownloadSequentialAsync(IReadOnlyList<GameAsset> assets,
+    public async Task<DownloadResult[]> DownloadSequentialAsync(IReadOnlyList<GameAsset> assets,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(assets);
         cancellationToken.ThrowIfCancellationRequested();
         // BEGIN U3a
         // TODO U3a: kontrakt a nápoveda sú v NAVOD.md.
-        throw new NotImplementedException("U3a DownloadSequentialAsync (Core/DownloadService.cs)");
+        var results = new List<DownloadResult>(assets.Count);
+        foreach (var asset in assets)
+        {
+            var result = await DownloadAssetAsync(asset, cancellationToken);
+            results.Add(result);
+        }
+        return results.ToArray();
         // END U3a
     }
 
-    public Task<DownloadResult[]> DownloadConcurrentAsync(IReadOnlyList<GameAsset> assets,
+    public async Task<DownloadResult[]> DownloadConcurrentAsync(IReadOnlyList<GameAsset> assets,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(assets);
         cancellationToken.ThrowIfCancellationRequested();
         // BEGIN U3b
         // TODO U3b: kontrakt a nápoveda sú v NAVOD.md.
-        throw new NotImplementedException("U3b DownloadConcurrentAsync (Core/DownloadService.cs)");
+        var tasks = new List<Task<DownloadResult>>(assets.Count);
+        foreach (var asset in assets)
+        {
+            tasks.Add(DownloadAssetAsync(asset, cancellationToken));
+        }
+        return await Task.WhenAll(tasks);
         // END U3b
     }
 
-    public Task SavePackAsync(string directory, IReadOnlyList<DownloadResult> results,
+    public async Task SavePackAsync(string directory, IReadOnlyList<DownloadResult> results,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(results);
@@ -55,23 +68,36 @@ public sealed class DownloadService
         Directory.CreateDirectory(directory);
         // BEGIN U4
         // TODO U4: kontrakt a nápoveda sú v NAVOD.md.
-        throw new NotImplementedException("U4 SavePackAsync (Core/DownloadService.cs)");
+        foreach (var result in results)
+        {
+            string path = PackageFiles.PathFor(directory, result.Asset);
+            await File.WriteAllTextAsync(path, result.Content, cancellationToken);
+        }
         // END U4
     }
 
     /// <summary>U6: len pri HTTP výpadku voliteľného súboru použije existujúcu cache.</summary>
-    public Task<DownloadResult> DownloadWithCacheAsync(GameAsset asset, string directory,
+    public async Task<DownloadResult> DownloadWithCacheAsync(GameAsset asset, string directory,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(asset);
         string file = PackageFiles.PathFor(directory, asset);
         // BEGIN U6
         // TODO U6: kontrakt a nápoveda sú v NAVOD.md.
-        throw new NotImplementedException("U6 DownloadWithCacheAsync (Core/DownloadService.cs)");
+        try
+        {
+            return await DownloadAssetAsync(asset, cancellationToken);
+        }
+        catch (HttpRequestException) when (!asset.Required && File.Exists(file))
+        {
+            string cached = await File.ReadAllTextAsync(file, cancellationToken);
+            _progress?.Report(new(asset.Id, "CACHE"));
+            return new DownloadResult(asset, cached, true);
+        }
         // END U6
     }
 
-    public Task<DownloadResult[]> DownloadLimitedAsync(IReadOnlyList<GameAsset> assets,
+    public async Task<DownloadResult[]> DownloadLimitedAsync(IReadOnlyList<GameAsset> assets,
         int maxConcurrency, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(assets);
@@ -79,7 +105,26 @@ public sealed class DownloadService
         cancellationToken.ThrowIfCancellationRequested();
         // BEGIN U7
         // TODO U7: kontrakt a nápoveda sú v NAVOD.md.
-        throw new NotImplementedException("U7 DownloadLimitedAsync (Core/DownloadService.cs)");
+        using var slots = new SemaphoreSlim(maxConcurrency, maxConcurrency);
+        var tasks = new List<Task<DownloadResult>>(assets.Count);
+        foreach (var asset in assets)
+        {
+            tasks.Add(DownloadOneAsync(asset));
+        }
+        return await Task.WhenAll(tasks);
+
+        async Task<DownloadResult> DownloadOneAsync(GameAsset asset)
+        {
+            await slots.WaitAsync(cancellationToken);
+            try
+            {
+                return await DownloadAssetAsync(asset, cancellationToken);
+            }
+            finally
+            {
+                slots.Release();
+            }
+        }
         // END U7
     }
 }
