@@ -1,0 +1,535 @@
+Kľúčové body:
+
+DownloadAssetAsync(asset, ...) bez await → metóda sa naštartuje hneď (do prvého await vnútri, čo je GetStringAsync — teda HTTP request sa odošle okamžite) a vráti Task<DownloadResult>, ktorý si uložíme.
+Všetky tri requesty sa teda rozbehnú skôr, než začneme čakať.
+
+await Task.WhenAll(tasks) po cykle počka na všetky a vráti pole výsledkov.
+
+Poradie výsledkov v Task.WhenAll je rovnaké ako poradie taskov v zozname (level, theme, tips), aj keď sa theme dokončí skôr než level. ✅
+
+Prečo U3a neblokuje vlákno, ale je postupná
+await v DownloadSequentialAsync neblokuje vlákno — vlákno sa medzitým vráti do thread poolu a obsluhuje inú prácu. Ale logické poradie je postupné: druhý request sa odošle až keď prvý dorazí. Čakanie sa teda neprekrýva:
+
+U3a: |—level 1200—|—theme 700—|—tips 900—| ≈ 2800 ms
+
+U3b: |—level 1200—|
+|—theme 700—|
+|—tips 900—| → všetky bežia súčasne, celkový čas ≈ 1200 ms (max, nie súčet)
+
+Rozdiel je v poradí spustenia I/O, nie v blokovaní CPU. Presne ako v prednáške — server, ktorý odpovedá postupne, aj keď klient posiela requesty asynchrónne.
+
+Odhalenie „presvedčivej chyby"
+Ak do U3b dočasne vložíš telo z U3a (s await v cykle), test U3b_Concurrent_StartsAllBeforeAnyFinishesAndPreservesOrder musí zlyhať — pretože druhý START príde až po prvom DONE. Program vráti správne obsahy, ale nie je súbežný. Test kontroluje, či sa všetky START objavia pred prvým DONE, takže:
+
+Verzia v U3b			Test U3b				Obsah v poli
+await v cykle			❌ zlyhá (timeout ~5 s)	✅ správny
+bez await, Task.WhenAll	✅ prejde				✅ správny
+
+Preto nestačí „vráti správne výsledky" — treba myslieť na kedy sa čo spustí.
+
+
+-------------------------------------------------------------------------------------------
+U4 — SavePackAsync
+csharp
+public async Task SavePackAsync(string directory, IReadOnlyList<DownloadResult> results,
+    CancellationToken cancellationToken = default)
+{
+    ArgumentNullException.ThrowIfNull(results);
+    ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+    cancellationToken.ThrowIfCancellationRequested();
+    Directory.CreateDirectory(directory);
+    // BEGIN U4
+    foreach (var result in results)
+    {
+        string path = PackageFiles.PathFor(directory, result.Asset);
+        await File.WriteAllTextAsync(path, result.Content, cancellationToken);
+    }
+    // END U4
+}
+Zmeny oproti starteru:
+
+Riadok	Zmena	Dôvod
+public Task SavePackAsync → public async Task SavePackAsync	pridané async	Potrebujeme await vnútri. Návratový typ ostáva Task (bez hodnoty).
+foreach + await File.WriteAllTextAsync(...)	I/O zápis	Každý súbor sa zapíše skutočne na disk.
+PackageFiles.PathFor(directory, result.Asset)	cesta	Presne podľa kontraktu; nerieš si vlastnú logiku ciest.
+cancellationToken tretí argument	zrušenie	Ak user klikne „Zrušiť" počas zápisu, zápis sa preruší.
+odstránené throw new NotImplementedException(...)	—	Nahradené implementáciou.
+Prečo postupne (bez Task.WhenAll)?
+Zadanie to explicitne hovorí — tri malé zápisy, žiadna výhra z paralelizmu, a hlavne poradie zápisu nie je dôležité, ale atomicita ako celok áno (o tom nižšie). Nepridávaj Task.Run — File.WriteAllTextAsync už beží asynchrónne na pozadí (thread pool pre disk I/O).
+
+Overenie
+bash
+dotnet test NeonovyKurier.slnx --filter "Unit=U4"
+Očakávam 18/18 testov po U4 (3 z U2 + 6 z U3 + 3 z U4? — podľa tabuľky v návode je to U2 až U4 = 18 z 18).
+
+Potom v appke:
+
+Súbežne → Stiahnuť misiu (tlačidlo, nie „bez uloženia")
+
+Hrať misiu sa odomkne — hra číta installed/level.json z disku
+
+.mission-ready potvrdí, že zápis prebehol
+
+Ak sa „Hrať misiu" neodomkne, skontroluj, či si nezabudol await (viď otázka nižšie).
+
+Vlastná misia
+Popri U4 máš aj upraviť Cli/Content/level.json:
+
+json
+{
+  "name": "Nočný kampus",
+  "track": "S.*.#..*...#.*.G",
+  "jumpBudget": 2
+}
+Pravidlá (podľa zadania):
+
+4–40 znakov
+
+začína S, končí G
+
+vo vnútri iba ., #, *
+
+aspoň jedna * (zásielka)
+
+dve susediace steny ## = neprejdete
+
+jumpBudget musí stačiť na všetky povinné steny
+
+Overenie: prvých štyroch pohybov má byť podľa zadania Krok, Krok, Krok, Skok. Po úprave zatvor appku, spusti znova (Content sa kopíruje pri builde) a klikni Stiahnuť misiu → Hrať misiu.
+
+Odpoveď na otázku z návodu
+Čo by sa mohlo stať, keby aplikácia oznámila dokončenú inštaláciu bez await zápisov?
+
+Predstav si, že by metóda vyzerala takto (chybne):
+
+csharp
+foreach (var r in results)
+    File.WriteAllTextAsync(PackageFiles.PathFor(directory, r.Asset), r.Content, cancellationToken);
+// žiadny await — metóda vráti Task hneď
+// ↓ a hneď nato appka povie „hotovo, odomkni Hrať misiu"
+Čo sa stane:
+
+Race condition. File.WriteAllTextAsync vráti Task okamžite — zápis ešte len začal bežať na pozadí. Metóda sa vráti skôr, než je posledný bajt na disku. Volajúci si myslí „hotovo", ale installed/level.json ešte nie je dokončený.
+
+Hra prečíta neúplný alebo chýbajúci súbor. Hra hneď po odomknutí číta installed/level.json. Ak tam ešte nie je (alebo je polovičný), validácia zlyhá alebo hra spadne. Pri JSON parseri často uvidíš JsonException — súbor je useknutý v polovici.
+
+Malý súbor to zakryje. Pri 3 kB JSON-e je okno medzi „Task vrátený" a „zápis dokončený" tak 0,1–1 ms. Na rýchlom SSD to niekedy prejde, na pomalom disku alebo pri zaťažení nie. To je presne tá „presvedčivá chyba" — testy raz prejdú, raz nie (flaky test). To je horšie ako keby to padalo vždy.
+
+Pevný Delay nie je oprava. Ak niekto „vyrieši" problém takto:
+
+csharp
+foreach (var r in results)
+    File.WriteAllTextAsync(...);
+await Task.Delay(500); // „nech to má čas"
+...je to nesprávne, lebo:
+
+Na pomalom disku môže byť 500 ms málo.
+
+Na rýchlom zbytočne blokuje.
+
+Je to hádanie, nie synchronizácia. Delay nesúvisí so zápisom — len náhodou skryje race.
+
+Správne je počkať na skutočné dokončenie — teda await na WriteAllTextAsync. Vtedy máš záruku, že keď metóda vráti Task ako dokončený, všetky tri súbory sú na disku.
+
+Odpoveď na súvisiacu tému: async ≠ non-blocking pre CPU
+V návode je aj poznámka:
+
+„Samotné async z výpočtu neurobí neblokujúci kód."
+
+Príklad: await SomeCpuHeavyMethodAsync() — ak vnútri len zavoláš synchrónny výpočet a vrátiš Task.CompletedTask, vlákno sa zablokuje na CPU a await nič nezachráni. Pre CPU prácu treba await Task.Run(() => CpuHeavy()), aby sa práca presunula na thread pool. Ale malý JSON a krátky SHA-256 to nepotrebujú — sú to mikrosekundy, Task.Run by pridal režiu.
+
+Rozdiel:
+
+I/O (disk, sieť): await File.WriteAllTextAsync — vlákno sa uvoľní, HW pracuje na pozadí.
+
+CPU (hash, parsovanie): await Task.Run(...) — vlákno sa presunie na iné jadro.
+
+V U4 máš čisté I/O, takže žiadny Task.Run.
+
+Zhrnutie
+U4 je 4-riadkový foreach s await File.WriteAllTextAsync.
+
+Bez await by inštalácia „prehlásila úspech" skôr, než je hotová — race s čítaním hry.
+
+Task.Delay to neopraví; iba await na skutočnom zápise dá záruku.
+
+
+----------------------------------------------------------------------------------------------------
+Odpoveď na otázku z návodu
+Čo by sa mohlo stať, keby aplikácia oznámila dokončenú inštaláciu bez await zápisov?
+
+Predstav si, že by metóda vyzerala takto (chybne):
+
+csharp
+foreach (var r in results)
+    File.WriteAllTextAsync(PackageFiles.PathFor(directory, r.Asset), r.Content, cancellationToken);
+// žiadny await — metóda vráti Task hneď
+// ↓ a hneď nato appka povie „hotovo, odomkni Hrať misiu"
+Čo sa stane:
+
+Race condition. File.WriteAllTextAsync vráti Task okamžite — zápis ešte len začal bežať na pozadí. Metóda sa vráti skôr, než je posledný bajt na disku. Volajúci si myslí „hotovo", ale installed/level.json ešte nie je dokončený.
+
+Hra prečíta neúplný alebo chýbajúci súbor. Hra hneď po odomknutí číta installed/level.json. Ak tam ešte nie je (alebo je polovičný), validácia zlyhá alebo hra spadne. Pri JSON parseri často uvidíš JsonException — súbor je useknutý v polovici.
+
+Malý súbor to zakryje. Pri 3 kB JSON-e je okno medzi „Task vrátený" a „zápis dokončený" tak 0,1–1 ms. Na rýchlom SSD to niekedy prejde, na pomalom disku alebo pri zaťažení nie. To je presne tá „presvedčivá chyba" — testy raz prejdú, raz nie (flaky test). To je horšie ako keby to padalo vždy.
+
+Pevný Delay nie je oprava. Ak niekto „vyrieši" problém takto:
+
+csharp
+foreach (var r in results)
+    File.WriteAllTextAsync(...);
+await Task.Delay(500); // „nech to má čas"
+...je to nesprávne, lebo:
+
+Na pomalom disku môže byť 500 ms málo.
+
+Na rýchlom zbytočne blokuje.
+
+Je to hádanie, nie synchronizácia. Delay nesúvisí so zápisom — len náhodou skryje race.
+
+Správne je počkať na skutočné dokončenie — teda await na WriteAllTextAsync. Vtedy máš záruku, že keď metóda vráti Task ako dokončený, všetky tri súbory sú na disku.
+
+Odpoveď na súvisiacu tému: async ≠ non-blocking pre CPU
+V návode je aj poznámka:
+
+„Samotné async z výpočtu neurobí neblokujúci kód."
+
+Príklad: await SomeCpuHeavyMethodAsync() — ak vnútri len zavoláš synchrónny výpočet a vrátiš Task.CompletedTask, vlákno sa zablokuje na CPU a await nič nezachráni. Pre CPU prácu treba await Task.Run(() => CpuHeavy()), aby sa práca presunula na thread pool. Ale malý JSON a krátky SHA-256 to nepotrebujú — sú to mikrosekundy, Task.Run by pridal režiu.
+
+Rozdiel:
+
+I/O (disk, sieť): await File.WriteAllTextAsync — vlákno sa uvoľní, HW pracuje na pozadí.
+
+CPU (hash, parsovanie): await Task.Run(...) — vlákno sa presunie na iné jadro.
+
+V U4 máš čisté I/O, takže žiadny Task.Run.
+
+-----------------------------------------------------------------------------------------------------------
+Časť 1 — Jeden súbor má výpadok
+Postup:
+
+Zavri appku, build, spusti znova (aby si mal aktuálne DLL, viď predošlá otázka).
+
+V appke vyber režim Súbežne.
+
+V Pokusy a diagnostika zapni Výpadok servera so vzhľadom.
+
+Klikni Stiahnuť misiu.
+
+Čo uvidíš:
+
+START level, START theme, START tips — všetky tri začnú (lebo U3b je súbežné).
+
+Level a tips DONE normálne.
+
+Theme vráti HTTP 503 → v await Task.WhenAll(...) vyletí HttpRequestException.
+
+Zápis balíčka (U4 SavePackAsync) sa nespustí — výnimka vyletí skôr, než sa k nemu kód dostane.
+
+Prečo: Task.WhenAll počká na všetky vstupy, aj keď jedna zlyhá. Nezruší ostatné. Keď všetky dobehnú, WhenAll vráti Faulted Task a await vyhodí jednu z výnimiek (pri viacerých by Exception obsahoval AggregateException).
+
+Stav Tasku: IsFaulted == true.
+
+Časť 2 — Používateľ už nechce čakať (zrušenie)
+Postup:
+
+Vypni Výpadok servera.
+
+Zapni Pomalá sieť (aby si stihol kliknúť Zrušiť).
+
+Spusti inštaláciu.
+
+Po START klikni Zrušiť.
+
+Čo uvidíš:
+
+CancellationToken sa prenesie z MainWindow → DownloadService → HttpClient.GetStringAsync(route, token).
+
+await vyhodí OperationCanceledException (presnejšie TaskCanceledException, čo je potomok).
+
+Okno ukáže „zrušené".
+
+Kľúčová myšlienka: zrušenie je spolupracujúca požiadavka (cooperative cancellation), nie násilné zabitie vlákna. Kód musí token pravidelne kontrolovať — HttpClient to robí za teba.
+
+Bonus pokus:
+
+Pred prenosom otvor tréning alebo hru → počas čakania skús pohyb, odozvu, ďalšie sťahovanie.
+
+UI zostane reagujúce (lebo await uvoľní UI vlákno).
+
+Ďalšie sťahovanie nepovolí — klient má pravidlo „jedna inštalácia naraz" (cez _cancel != null alebo podobný flag v MainWindow).
+
+Po úspechu / chybe / zrušení sa ovládanie musí obnoviť — zabezpečuje to finally v MainWindow.
+
+⚠️ Pred U6 vypni Pomalá sieť, inak ďalšie testy potrvajú 1,2 s × N.
+
+Časť 3 — Tri riadky pre prax (v MainWindow.cs)
+Nájdi tieto tri veci:
+
+Vytvorenie CancellationTokenSource:
+
+csharp
+_cancel = new CancellationTokenSource();
+var token = _cancel.Token;
+Zrušenie:
+
+csharp
+_cancel?.Cancel();
+Obnova ovládania vo finally:
+
+csharp
+try { ... await _service.SavePackAsync(...); ... }
+finally { SetBusy(false); _cancel?.Dispose(); _cancel = null; }
+Otázka z návodu
+Čo by sa stalo, keby sa ovládanie obnovovalo iba za úspešným await?
+
+Predstav si:
+
+csharp
+try {
+    await _service.DownloadConcurrentAsync(...);
+    await _service.SavePackAsync(...);
+    SetBusy(false);   // ❌ len tu
+} catch (Exception ex) {
+    ShowError(ex);    // SetBusy sa NEZAVOLÁ
+}
+Dôsledky:
+
+Pri výnimke (HTTP 503, zrušenie) sa SetBusy(false) nikdy nezavolá.
+
+Tlačidlá Stiahnuť misiu a Zrušiť zostanú v stave „busy" — user už nemôže spustiť nič.
+
+Appka sa zasekne v „prebieha inštalácia" navždy. Musí ju reštartovať.
+
+Presne to je dôvod, prečo finally existuje: obnov stav bez ohľadu na to, ako blok skončí (úspech / chyba / zrušenie).
+
+async void vs async Task
+async void je iba na hranici UI event handlera (Button_Click), kde nemáš komu vrátiť Task. Výnimky z async void nejdú cez await, ale padnú do SynchronizationContext → typicky zhodia appku.
+
+async Task vracia Task → dá sa await-ovať a výnimky sa dajú zachytiť v try/catch.
+
+V službe (DownloadService) preto nikdy async void — len async Task / async Task<T>.
+
+Otázka „HTTP chyba vs. zrušenie"
+HTTP chyba	Zrušenie
+Výnimka	HttpRequestException	OperationCanceledException / TaskCanceledException
+Kto inicioval	Server (503, 404, timeout)	Používateľ (Cancel)
+Token	Nezrušený	token.IsCancellationRequested == true
+Čo robiť v U6	Skúsiť cache (pri voliteľnom súbore)	Neskúsiť cache — výnimka musí prejsť
+Stav	Faulted	Canceled
+To je kľúč pre U6: cache zachraňuje len HTTP výpadok, nie zrušenie. Ak user klikol Zrušiť, nesmie sa mu ticho vrátiť stará cache ako „úspech" — chce predsa aby sa to zrušilo.
+
+--------------------------------------------------------------------------------------------------
+Kompletné OwnFeatureTests.cs
+csharp
+using System.Net;
+using NeonovyKurier.Core;
+
+namespace NeonovyKurier.Tests;
+
+public sealed class OwnFeatureTests
+{
+    private static readonly GameAsset Theme = new("theme", "theme.json", "/theme", Required: false);
+
+    private static HttpClient Client(ControlledHandler handler)
+        => new(handler) { BaseAddress = new Uri("http://localhost/") };
+
+    private static string NewCacheDirectory()
+    {
+        string directory = Path.Combine(Path.GetTempPath(), "NeonovyKurierTests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+        return directory;
+    }
+
+    // 1. HTTP 503 + voliteľný súbor + existujúca cache → vráti starý obsah, FromCache = true
+    [Fact]
+    public async Task U6_HttpFailure_OptionalAssetWithCache_ReturnsCachedContent()
+    {
+        string directory = NewCacheDirectory();
+        try
+        {
+            await File.WriteAllTextAsync(Path.Combine(directory, Theme.FileName), "OLD");
+            using var handler = new ControlledHandler();
+            using var client = Client(handler);
+            handler.Complete("theme", "Výpadok", HttpStatusCode.ServiceUnavailable);
+
+            DownloadResult result = await new DownloadService(client)
+                .DownloadWithCacheAsync(Theme, directory);
+
+            Assert.Equal("OLD", result.Content);
+            Assert.True(result.FromCache);
+            Assert.Same(Theme, result.Asset);
+        }
+        finally { Directory.Delete(directory, true); }
+    }
+
+    // 2. Úspešná HTTP odpoveď → vráti NOVÝ obsah, FromCache = false (cache sa nepoužije)
+    [Fact]
+    public async Task U6_HttpSuccess_ReturnsFreshContentAndFromCacheFalse()
+    {
+        string directory = NewCacheDirectory();
+        try
+        {
+            // aj keď existuje stará cache, pri úspešnom HTTP sa nesmie použiť
+            await File.WriteAllTextAsync(Path.Combine(directory, Theme.FileName), "OLD");
+            using var handler = new ControlledHandler();
+            using var client = Client(handler);
+            handler.Complete("theme", "NEW");
+
+            DownloadResult result = await new DownloadService(client)
+                .DownloadWithCacheAsync(Theme, directory);
+
+            Assert.Equal("NEW", result.Content);
+            Assert.False(result.FromCache);
+            Assert.Same(Theme, result.Asset);
+        }
+        finally { Directory.Delete(directory, true); }
+    }
+
+    // 3. Zrušenie po začatí požiadavky sa propaguje aj keď cache existuje
+    [Fact]
+    public async Task U6_Cancellation_AfterRequestStarted_PropagatesEvenWithCache()
+    {
+        string directory = NewCacheDirectory();
+        try
+        {
+            await File.WriteAllTextAsync(Path.Combine(directory, Theme.FileName), "OLD");
+            using var handler = new ControlledHandler();
+            using var client = Client(handler);
+            using var cts = new CancellationTokenSource();
+
+            Task<DownloadResult> task = new DownloadService(client)
+                .DownloadWithCacheAsync(Theme, directory, cts.Token);
+
+            // synchronizačný bod: počkáme, kým požiadavka reálne začala
+            await handler.StartedAsync("theme");
+
+            // teraz zrušíme — nesmie sa stať, že sa vráti stará cache
+            cts.Cancel();
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => task);
+        }
+        finally { Directory.Delete(directory, true); }
+    }
+}
+Prečo test 3 musí zlyhať, ak do catch pridáš OperationCanceledException
+Toto je kľúčová kontrola z návodu. Ak by si do DownloadWithCacheAsync pridal:
+
+csharp
+catch (OperationCanceledException)
+{
+    return new DownloadResult(asset, "stará cache", true);
+}
+…test 3 zlyhá, pretože:
+
+Assert.ThrowsAnyAsync<OperationCanceledException>(() => task) očakáva, že task vyhodí OperationCanceledException.
+
+Ale tvoja metóda vráti úspešný DownloadResult (so FromCache = true).
+
+Assert zlyhá s hláškou typu „Expected OperationCanceledException but no exception was thrown".
+
+To je dôkaz, že test skutočne odhaľuje pohltenie zrušenia. Po overení tú catch vetvu vymaž.
+
+Čo presne ktorý test rozlišuje
+Test	Scenár	Očakáva
+1	HTTP 503 + cache existuje	FromCache == true, obsah = starý
+2	HTTP OK + cache existuje	FromCache == false, obsah = nový
+3	Cancel po štarte + cache existuje	OperationCanceledException
+Test 2 je dôležitý preto, lebo overuje opačnú hranicu ako test 1: cache sa má použiť iba pri HTTP chybe, nie vždy. Keby si cache použil aj pri úspechu, test 2 zlyhá (dostal by si "OLD" namiesto "NEW").
+
+Test 3 je dôležitý preto, lebo overuje, že zrušenie nie je HTTP chyba. Toto je presne to rozhodnutie, ktoré máš v U6 zdôvodniť: HTTP výpadok môžeme zachrániť starou cache, ale zrušenie od používateľa nesmieme ticho „premeniť" na úspech.
+
+Poznámka k Path.Combine(directory, Theme.FileName)
+Použil som presne to, čo je v tvojej kostre. Ale uisti sa, že PackageFiles.PathFor(directory, asset) vracia to isté (t. j. directory + "/" + asset.FileName). Ak by PathFor robil niečo iné (napr. inú štruktúru podpriečinkov), test 1 by zlyhal, lebo by si zapísal cache na jedno miesto a DownloadService by ju hľadal na inom.
+
+Rýchla kontrola: otvor Core/PackageFiles.cs a porovnaj PathFor. Ak sedí, super. Ak nie, prepíš v testoch na PackageFiles.PathFor(directory, Theme).
+
+Spustenie
+bash
+dotnet test NeonovyKurier.slnx --filter "FullyQualifiedName~U6_"
+Očakávaš 3 zelené. Potom celé:
+
+bash
+dotnet test NeonovyKurier.slnx
+Očakávaš 18 dodaných + 3 tvoje = 21 zelených (a všetky ostatné, čo máš).
+
+A ešte --basic:
+
+bash
+dotnet run --project NeonovyKurier.Cli -- --basic
+→ 0 nedokončených scenárov, 0 neočakávaných chýb.
+
+--------------------------------------------------------------------------------------------------
+DownloadWithCacheAsync — kontrola kontraktu
+Bod kontraktu	Tvoj kód	OK
+async + Task<DownloadResult>	✅	✅
+Najprv await DownloadAssetAsync(asset, token)	✅	✅
+Pri úspechu vráti nezmenený výsledok (FromCache == false)	✅ return await ...	✅
+catch (HttpRequestException)	✅ úzky typ	✅
+Filter when (!asset.Required && File.Exists(file))	✅ presne	✅
+await File.ReadAllTextAsync(file, cancellationToken)	✅ s tokenom	✅
+_progress?.Report(new(asset.Id, "CACHE"))	✅	✅
+new DownloadResult(asset, cached, true)	✅ FromCache = true	✅
+Žiadny catch pre OperationCanceledException	✅	✅
+catch obalí len await DownloadAssetAsync, nie ReadAllTextAsync	✅	✅
+Jedna drobnosť: // TODO U6 komentár si mohol odstrániť (je to zvyšok po šablóne). Fungovať to nebude vadiť, ale čistejší kód je bez neho. Tiež // BEGIN U6 / // END U6 zvyčajne ostávajú — tie sú súčasť „značiek" zadania.
+
+Testy — kontrola
+Test	Čo overuje	OK
+1 U6_HttpFailure_OptionalAssetWithCache_ReturnsCachedContent	503 + cache → FromCache == true, obsah „OLD"	✅
+2 U6_HttpSuccess_ReturnsFreshContentAndFromCacheFalse	HTTP OK + cache existuje → FromCache == false, obsah „NEW"	✅
+3 U6_Cancellation_AfterRequestStarted_PropagatesEvenWithCache	Cancel po štarte → OperationCanceledException	✅
+Silné miesta tvojich testov:
+
+Test 2 má aj starú cache na disku — presne overuje, že sa cache nepoužije pri úspechu. Keby si ju tam nemal, test by prešiel aj s chybnou implementáciou, ktorá cache používa vždy.
+
+Test 3 používa StartedAsync("theme") ako synchronizačný bod — deterministický, nezávisí od rýchlosti.
+
+Assert.Same(Theme, result.Asset) — overuje identitu, že sa nevytvára nový GameAsset. To je podľa kontraktu bod „vráti pôvodnú identitu".
+
+Skontroluj si ešte jednu vec
+V testoch píšeš:
+
+csharp
+await File.WriteAllTextAsync(Path.Combine(directory, Theme.FileName), "OLD");
+ale DownloadService hľadá cache cez:
+
+csharp
+string file = PackageFiles.PathFor(directory, asset);
+Musia vracať to isté. Otvor Core/PackageFiles.cs a over, že PathFor(directory, Theme) vracia Path.Combine(directory, Theme.FileName) (alebo ekvivalent). Ak by PathFor robil napríklad directory + "/theme/theme.json", test 1 by zlyhal — buď by si cache zapísal na zlé miesto, alebo File.Exists(file) by bolo false a catch blok by sa vôbec nespustil.
+
+Ak to sedí, si dobrý.
+
+Spustenie
+bash
+dotnet test NeonovyKurier.slnx --filter "FullyQualifiedName~U6_"
+Očakávaš 3 zelené. Ak niektorý zlyhá, pošli mi presnú hlášku (Assert.Equal failure alebo exception) — najčastejšie problémy:
+
+Test 1 zlyhá s FileNotFoundException → PathFor vs. Theme.FileName mismatch (viď vyššie).
+
+Test 3 zlyhá s timeoutom v StartedAsync → ControlledHandler nedostal request, lebo BaseAddress v klientovi je http://localhost/ a route je /theme (malo by sedieť, ale over, že ControlledHandler je naozaj pripojený).
+
+Test 3 zlyhá s Assert.ThrowsAnyAsync neúspechom → tvoj catch (HttpRequestException) zachytil aj cancel. To by znamenalo, že .NET v tvojej verzii hádže HttpRequestException aj pri zrušení — vtedy pridaj catch (HttpRequestException) when (!cancellationToken.IsCancellationRequested && ...). Ale to by nemalo nastať, cancel má ísť ako OperationCanceledException.
+
+Overenie citlivosti (podľa návodu)
+Do catch dočasne vlož pred HttpRequestException:
+
+csharp
+catch (OperationCanceledException)
+{
+    return new DownloadResult(asset, "stará cache", true);
+}
+Test 3 musí zlyhať (Assert.ThrowsAnyAsync nenájde výnimku). Potom vetvu vymaž a spusti znova.
+
+Toto je presne ten typ cvičenia, ktorý ti ukáže, že test skutočne odhaľuje pohltenie zrušenia — nie je to len „zelený test, ktorý nič nekontroluje".
+
+Keď budeš mať U6 zelené, pošli mi svoj LimitedConcurrencyTests.cs a môžeme ísť na U7. Tam je najdôležitejšia vec SemaphoreSlim:
+
+csharp
+async Task<DownloadResult> DownloadOneAsync(GameAsset asset)
+{
+    await slots.WaitAsync(cancellationToken);  // ← ak toto vyhodí, NESMIE sa zavolať Release
+    try { return await DownloadAssetAsync(asset, cancellationToken); }
+    finally { slots.Release(); }
+}
+Toto je klasická pasca: keď WaitAsync vyhodí OperationCanceledException (lebo token bol zrušený počas čakania), Release() sa nesmie zavolať — inak by si vrátil miesto, ktoré si nikdy nezískal, a rozbil počítadlo. Preto je WaitAsync pred try

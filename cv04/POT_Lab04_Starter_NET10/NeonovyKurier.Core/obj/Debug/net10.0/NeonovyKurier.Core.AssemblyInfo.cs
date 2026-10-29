@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NeonovyKurier.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d8bc6f64c94302011fab462d877ddf23fdd3e4b9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7ebbe220ebf0a18824f01bd22f49ef9b177bd432")]
 [assembly: System.Reflection.AssemblyProductAttribute("NeonovyKurier.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NeonovyKurier.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
