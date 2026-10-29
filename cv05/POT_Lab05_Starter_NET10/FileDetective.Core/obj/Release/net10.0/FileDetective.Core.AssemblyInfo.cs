@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FileDetective.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+aa6e8f8570fa670f09008eb17e6bc6e41b278671")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3f6249b9414b985c696d2e87d81b51d2616c5851")]
 [assembly: System.Reflection.AssemblyProductAttribute("FileDetective.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FileDetective.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

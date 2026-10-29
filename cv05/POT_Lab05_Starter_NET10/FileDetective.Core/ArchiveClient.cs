@@ -15,12 +15,23 @@ public sealed record ArchivedReport(Guid Id, DateTimeOffset CreatedAt, ReportUpl
 public sealed class ArchiveClient(HttpClient http)
 {
     // BEGIN U5CLIENT
-    public Task<ArchivedReport> PublishAsync(ScanReport report, bool slow, CancellationToken token)
+    public async Task<ArchivedReport> PublishAsync(ScanReport report, bool slow, CancellationToken token)
     {
         _ = http;
         // TODO U5a: await PostAsJsonAsync s ReportUpload.From(report) a tokenom.
         // Overte HTTP stav a await ReadFromJsonAsync<ArchivedReport> s tokenom.
-        throw new NotImplementedException("TODO U5a: publikovanie cez REST");
+        string url = slow ? "api/reports?delayMs=3000" : "api/reports";
+
+        using var response = await http
+            .PostAsJsonAsync(url, ReportUpload.From(report), token)
+            .ConfigureAwait(false);
+
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content
+            .ReadFromJsonAsync<ArchivedReport>(token)
+            .ConfigureAwait(false)
+            ?? throw new InvalidDataException("Archív vrátil prázdnu odpoveď.");
     }
     // END U5CLIENT
 

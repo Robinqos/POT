@@ -8,12 +8,18 @@ public interface IScanner
 public sealed class DuplicateScanner(IFileReader reader) : IScanner
 {
     // BEGIN U2B
-    public Task<FingerprintEntry> HashFileAsync(string path, CancellationToken token)
+    public async Task<FingerprintEntry> HashFileAsync(string path, CancellationToken token)
     {
-        _ = reader;
-        // TODO U2b: await reader.ReadAsync, potom await Task.Run pre Fingerprint.Compute.
-        // Vráťte FingerprintEntry(path, bytes.LongLength, hash). Token patrí obom častiam.
-        throw new NotImplementedException("TODO U2b: nájdite kópie podľa obsahu");
+        // 1. Asynchrónne načítanie celého obsahu súboru (I/O)
+        byte[] bytes = await reader.ReadAsync(path, token).ConfigureAwait(false);
+
+        // 2. CPU výpočet na pozadí – token aj pre plánovanie, aj pre slučku
+        string hash = await Task.Run(
+            () => Fingerprint.Compute(bytes, token),
+            token).ConfigureAwait(false);
+
+        // 3. Vráť záznam s celkovou dĺžkou súboru v bajtoch
+        return new FingerprintEntry(path, bytes.LongLength, hash);
     }
     // END U2B
 

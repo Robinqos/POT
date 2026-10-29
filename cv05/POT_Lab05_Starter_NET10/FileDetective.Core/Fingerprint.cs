@@ -15,7 +15,7 @@ public static class Fingerprint
         for (int offset = 0; offset < bytes.Length; offset += ChunkSize)
         {
             // BEGIN U2A
-            // TODO U2a: overte token pri každom bloku CPU výpočtu.
+            token.ThrowIfCancellationRequested();
             // END U2A
             int length = Math.Min(ChunkSize, bytes.Length - offset);
             hash.AppendData(bytes, offset, length);
