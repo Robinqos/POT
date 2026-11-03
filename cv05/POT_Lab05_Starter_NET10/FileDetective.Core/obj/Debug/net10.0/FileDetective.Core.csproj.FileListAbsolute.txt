@@ -1,0 +1,13 @@
+C:\Users\rocesk\source\repos\Robinqos\POT\Robinqos\POT\cv05\POT_Lab05_Starter_NET10\FileDetective.Core\bin\Debug\net10.0\FileDetective.Core.deps.json
+C:\Users\rocesk\source\repos\Robinqos\POT\Robinqos\POT\cv05\POT_Lab05_Starter_NET10\FileDetective.Core\bin\Debug\net10.0\FileDetective.Core.dll
+C:\Users\rocesk\source\repos\Robinqos\POT\Robinqos\POT\cv05\POT_Lab05_Starter_NET10\FileDetective.Core\bin\Debug\net10.0\FileDetective.Core.pdb
+C:\Users\rocesk\source\repos\Robinqos\POT\Robinqos\POT\cv05\POT_Lab05_Starter_NET10\FileDetective.Core\obj\Debug\net10.0\FileDetective.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\rocesk\source\repos\Robinqos\POT\Robinqos\POT\cv05\POT_Lab05_Starter_NET10\FileDetective.Core\obj\Debug\net10.0\FileDetective.Core.AssemblyInfoInputs.cache
+C:\Users\rocesk\source\repos\Robinqos\POT\Robinqos\POT\cv05\POT_Lab05_Starter_NET10\FileDetective.Core\obj\Debug\net10.0\FileDetective.Core.AssemblyInfo.cs
+C:\Users\rocesk\source\repos\Robinqos\POT\Robinqos\POT\cv05\POT_Lab05_Starter_NET10\FileDetective.Core\obj\Debug\net10.0\FileDetective.Core.csproj.CoreCompileInputs.cache
+C:\Users\rocesk\source\repos\Robinqos\POT\Robinqos\POT\cv05\POT_Lab05_Starter_NET10\FileDetective.Core\obj\Debug\net10.0\FileDetective.Core.sourcelink.json
+C:\Users\rocesk\source\repos\Robinqos\POT\Robinqos\POT\cv05\POT_Lab05_Starter_NET10\FileDetective.Core\obj\Debug\net10.0\FileDetective.Core.dll
+C:\Users\rocesk\source\repos\Robinqos\POT\Robinqos\POT\cv05\POT_Lab05_Starter_NET10\FileDetective.Core\obj\Debug\net10.0\refint\FileDetective.Core.dll
+C:\Users\rocesk\source\repos\Robinqos\POT\Robinqos\POT\cv05\POT_Lab05_Starter_NET10\FileDetective.Core\obj\Debug\net10.0\FileDetective.Core.pdb
+C:\Users\rocesk\source\repos\Robinqos\POT\Robinqos\POT\cv05\POT_Lab05_Starter_NET10\FileDetective.Core\obj\Debug\net10.0\ref\FileDetective.Core.dll
+C:\Users\rocesk\source\repos\Robinqos\POT\Robinqos\POT\cv05\POT_Lab05_Starter_NET10\FileDetective.Core\obj\Debug\net10.0\FileDete.2363DEB4.Up2Date

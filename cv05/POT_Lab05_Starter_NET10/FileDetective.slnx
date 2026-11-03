@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Odpovede.md" />
+  </Folder>
+  <Project Path="FileDetective.Core/FileDetective.Core.csproj" />
+  <Project Path="FileDetective.Desktop/FileDetective.Desktop.csproj" />
+  <Project Path="FileDetective.Tests/FileDetective.Tests.csproj" />
+  <Project Path="FileDetective.Server/FileDetective.Server.csproj" />
+</Solution>

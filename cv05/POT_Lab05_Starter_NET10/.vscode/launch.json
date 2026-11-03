@@ -1,0 +1,36 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Server",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/FileDetective.Server/bin/Debug/net10.0/FileDetective.Server.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Desktop",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/FileDetective.Desktop/bin/Debug/net10.0/FileDetective.Desktop.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Audit - server a okno",
+      "configurations": [
+        "Server",
+        "Desktop"
+      ],
+      "preLaunchTask": "build FileDetective",
+      "stopAll": true
+    }
+  ]
+}

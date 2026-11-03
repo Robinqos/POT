@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "Audit - server a okno",
+    "Projects": [
+      {
+        "Path": "FileDetective.Server\\FileDetective.Server.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "FileDetective.Desktop\\FileDetective.Desktop.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
