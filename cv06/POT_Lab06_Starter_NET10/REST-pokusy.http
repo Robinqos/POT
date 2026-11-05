@@ -1,0 +1,69 @@
+@baseUrl = https://localhost:7066
+# Po vytvoreni knihy nahradte bookId skutocnym ID z odpovede.
+@bookId = 00000000-0000-0000-0000-000000000000
+
+### Cisty starter: 200 a JSON
+GET {{baseUrl}}/weatherforecast
+
+### U1: zoznam knih, 200
+GET {{baseUrl}}/api/books
+
+### U1: vytvorenie, 201 + Location. Skopirujte ID do bookId.
+POST {{baseUrl}}/api/books
+Content-Type: application/json
+
+{"title":"Duna","author":"Frank Herbert","year":1965}
+
+### U1: detail vytvorenej knihy, 200
+GET {{baseUrl}}/api/books/{{bookId}}
+
+### U1: chybajuci rok, 400; kniha nesmie pribudnut
+POST {{baseUrl}}/api/books
+Content-Type: application/json
+
+{"title":"Duna","author":"Frank Herbert"}
+
+### U1: null rok, 400
+POST {{baseUrl}}/api/books
+Content-Type: application/json
+
+{"title":"Duna","author":"Frank Herbert","year":null}
+
+### U1: rok mimo rozsahu, 400
+POST {{baseUrl}}/api/books
+Content-Type: application/json
+
+{"title":"Duna","author":"Frank Herbert","year":1449}
+
+### U1: kratky nazov, 400
+POST {{baseUrl}}/api/books
+Content-Type: application/json
+
+{"title":"D","author":"Frank Herbert","year":1965}
+
+### U1: chyba bindingu Guid, 400 pri route {id}
+GET {{baseUrl}}/api/books/abc
+
+### U1: platny neexistujuci Guid, 404
+GET {{baseUrl}}/api/books/00000000-0000-0000-0000-000000000000
+
+### U2: uplna aktualizacia existujucej knihy, 204; spustite dvakrat
+PUT {{baseUrl}}/api/books/{{bookId}}
+Content-Type: application/json
+
+{"title":"Duna – upravene vydanie","author":"Frank Herbert","year":1965}
+
+### U2: chybal autor, 400; predchadzajucia hodnota zostane
+PUT {{baseUrl}}/api/books/{{bookId}}
+Content-Type: application/json
+
+{"title":"Duna","year":1965}
+
+### U2: overenie stavu po PUT, 200 a nezmenene ID
+GET {{baseUrl}}/api/books/{{bookId}}
+
+### U2: prve zmazanie 204, opakovane zmazanie 404
+DELETE {{baseUrl}}/api/books/{{bookId}}
+
+### U2: detail po zmazani, 404
+GET {{baseUrl}}/api/books/{{bookId}}

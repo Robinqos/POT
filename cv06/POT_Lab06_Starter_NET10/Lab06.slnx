@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Lab06.Server/Lab06.Server.csproj" />
+  <Project Path="Lab06.Client/Lab06.Client.csproj" />
+  <Project Path="Lab06.GrpcContracts/Lab06.GrpcContracts.csproj" />
+</Solution>
