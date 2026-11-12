@@ -1,0 +1,24 @@
+<Window x:Class="WpfUkazky.Okna.W11_Knihy"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:WpfUkazky.Okna"
+        xmlns:vm="clr-namespace:WpfUkazky.ViewModels"
+        Title="Knihy – aplikácia bez code-behind (slajdy 30 – 32)" Height="500" Width="1000">
+
+    <!-- slajd 31: DataContext v XAML, code-behind ostáva prázdny -->
+    <Window.DataContext>
+        <vm:LibraryViewModel />
+    </Window.DataContext>
+
+    <DockPanel>
+        <!-- vektorová grafika: celý formulár sa plynule zväčšuje -->
+        <Slider x:Name="SliderScale" DockPanel.Dock="Top" HorizontalAlignment="Right" Width="500" Margin="5"
+                Minimum=".5" Maximum="2" Value="1"/>
+        <local:KnihyView>
+            <local:KnihyView.LayoutTransform>
+                <ScaleTransform ScaleX="{Binding Value, ElementName=SliderScale}"
+                                ScaleY="{Binding Value, ElementName=SliderScale}"/>
+            </local:KnihyView.LayoutTransform>
+        </local:KnihyView>
+    </DockPanel>
+</Window>

@@ -1,0 +1,29 @@
+<Window x:Class="MvvmCaliburn.Views.ShellView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Ukážka MVVM – Caliburn.Micro"
+        SizeToContent="WidthAndHeight" MinWidth="300">
+    <!-- slajd 18 – žiadny Binding: Caliburn.Micro prepojí prvky s ViewModelom podľa x:Name -->
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="80" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Label Content="Meno:" />
+        <Label Grid.Row="1" Content="Priezvisko:" />
+        <Label Grid.Row="2" Content="E-mail:" />
+        <TextBox Grid.Row="0" Grid.Column="1" x:Name="TxtMeno"/>
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="TxtPrie"/>
+        <TextBox Grid.Row="2" Grid.Column="1" x:Name="TxtMail"/>
+        <UniformGrid Grid.Row="3" Rows="1" Grid.ColumnSpan="2">
+            <Button Content="Ulož" x:Name="CmdSave" Margin="3"/>
+            <Button Content="Zatvor" x:Name="CmdExit" Margin="3"/>
+        </UniformGrid>
+    </Grid>
+</Window>

@@ -1,0 +1,231 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:DevPulse.App"
+             xmlns:conv="using:DevPulse.App.Converters"
+             xmlns:models="using:DevPulse.Core.Models"
+             x:Class="DevPulse.App.App"
+             RequestedThemeVariant="Dark">
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="WindowBgBrush" Color="#EEF2F6" />
+                    <SolidColorBrush x:Key="HeaderBgBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="HeaderBorderBrush" Color="#D8E1EB" />
+                    <SolidColorBrush x:Key="PanelBgBrush" Color="#F8FAFC" />
+                    <SolidColorBrush x:Key="PanelBorderBrush" Color="#DCE4EE" />
+                    <SolidColorBrush x:Key="CardBgBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="CardHoverBgBrush" Color="#F8FAFC" />
+                    <SolidColorBrush x:Key="CardSelectedBgBrush" Color="#EFF6FF" />
+                    <SolidColorBrush x:Key="CardBorderBrush" Color="#D8E1EB" />
+                    <SolidColorBrush x:Key="ControlSubtleBgBrush" Color="#F1F5F9" />
+                    <SolidColorBrush x:Key="ControlSubtleBorderBrush" Color="#CBD5E1" />
+                    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#0F172A" />
+                    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#334155" />
+                    <SolidColorBrush x:Key="TextMutedBrush" Color="#64748B" />
+                    <SolidColorBrush x:Key="BrandPrimaryBrush" Color="#2563EB" />
+                    <SolidColorBrush x:Key="BrandPrimaryHoverBrush" Color="#1D4ED8" />
+                    <SolidColorBrush x:Key="BrandAccentBrush" Color="#2563EB" />
+                    <SolidColorBrush x:Key="BrandSoftBgBrush" Color="#DBEAFE" />
+                    <SolidColorBrush x:Key="BrandSoftFgBrush" Color="#1E40AF" />
+                    <SolidColorBrush x:Key="MetricPillBgBrush" Color="#F1F5F9" />
+                    <SolidColorBrush x:Key="MetricPillFgBrush" Color="#334155" />
+                    <SolidColorBrush x:Key="DangerSoftBgBrush" Color="#FEF2F2" />
+                    <SolidColorBrush x:Key="DangerHoverBgBrush" Color="#FEE2E2" />
+                    <SolidColorBrush x:Key="DangerSoftBorderBrush" Color="#FCA5A5" />
+                    <SolidColorBrush x:Key="DangerSoftFgBrush" Color="#B91C1C" />
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="WindowBgBrush" Color="#0B1120" />
+                    <SolidColorBrush x:Key="HeaderBgBrush" Color="#111827" />
+                    <SolidColorBrush x:Key="HeaderBorderBrush" Color="#243044" />
+                    <SolidColorBrush x:Key="PanelBgBrush" Color="#111827" />
+                    <SolidColorBrush x:Key="PanelBorderBrush" Color="#1F2A3C" />
+                    <SolidColorBrush x:Key="CardBgBrush" Color="#172133" />
+                    <SolidColorBrush x:Key="CardHoverBgBrush" Color="#1D2A40" />
+                    <SolidColorBrush x:Key="CardSelectedBgBrush" Color="#1E3150" />
+                    <SolidColorBrush x:Key="CardBorderBrush" Color="#28374E" />
+                    <SolidColorBrush x:Key="ControlSubtleBgBrush" Color="#172133" />
+                    <SolidColorBrush x:Key="ControlSubtleBorderBrush" Color="#2B3B54" />
+                    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F1F5F9" />
+                    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#CBD5E1" />
+                    <SolidColorBrush x:Key="TextMutedBrush" Color="#94A3B8" />
+                    <SolidColorBrush x:Key="BrandPrimaryBrush" Color="#2563EB" />
+                    <SolidColorBrush x:Key="BrandPrimaryHoverBrush" Color="#1D4ED8" />
+                    <SolidColorBrush x:Key="BrandAccentBrush" Color="#3B82F6" />
+                    <SolidColorBrush x:Key="BrandSoftBgBrush" Color="#1E3A5F" />
+                    <SolidColorBrush x:Key="BrandSoftFgBrush" Color="#93C5FD" />
+                    <SolidColorBrush x:Key="MetricPillBgBrush" Color="#0F172A" />
+                    <SolidColorBrush x:Key="MetricPillFgBrush" Color="#93C5FD" />
+                    <SolidColorBrush x:Key="DangerSoftBgBrush" Color="#3B1820" />
+                    <SolidColorBrush x:Key="DangerHoverBgBrush" Color="#4C1D24" />
+                    <SolidColorBrush x:Key="DangerSoftBorderBrush" Color="#7F1D1D" />
+                    <SolidColorBrush x:Key="DangerSoftFgBrush" Color="#FCA5A5" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+
+            <conv:PriorityToBrushConverter x:Key="PriorityToBrushConverter" />
+            <conv:PriorityLabelConverter x:Key="PriorityLabelConverter" />
+
+            <!-- Čisté vektorové ikony (StreamGeometry) namiesto nekonzistentných systémových emoji -->
+            <StreamGeometry x:Key="IconPulse">M2,11 L6.2,11 L9.4,3.2 L10.8,3.2 L14.2,17.4 L16.8,11 L22,11 L22,13 L18.2,13 L14.6,21.5 L13.2,21.5 L9.8,7.3 L7.4,13 L2,13 Z</StreamGeometry>
+            <StreamGeometry x:Key="IconRss">M5,16 A3,3 0 1,1 5,22 A3,3 0 1,1 5,16 Z M2,9 A13,13 0 0,1 15,22 L12,22 A10,10 0 0,0 2,12 Z M2,2 A20,20 0 0,1 22,22 L19,22 A17,17 0 0,0 2,5 Z</StreamGeometry>
+            <StreamGeometry x:Key="IconCheckList">M3.5,6.5 L5,5 L7.5,7.5 L11.5,3.5 L13,5 L7.5,10.5 Z M15,6 L21,6 L21,8 L15,8 Z M3.5,16.5 L5,15 L7.5,17.5 L11.5,13.5 L13,15 L7.5,20.5 Z M15,16 L21,16 L21,18 L15,18 Z</StreamGeometry>
+        </ResourceDictionary>
+    </Application.Resources>
+
+    <Application.DataTemplates>
+        <DataTemplate DataType="models:TaskPriority" x:DataType="models:TaskPriority">
+            <TextBlock Text="{Binding Converter={StaticResource PriorityLabelConverter}}" />
+        </DataTemplate>
+        <local:ViewLocator />
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme />
+
+        <Style Selector="Window">
+            <Setter Property="Background" Value="{DynamicResource WindowBgBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+        </Style>
+
+        <Style Selector="Border.panel">
+            <Setter Property="Background" Value="{DynamicResource PanelBgBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="14" />
+        </Style>
+
+        <Style Selector="Button">
+            <Setter Property="CornerRadius" Value="7" />
+            <Setter Property="Padding" Value="12,6" />
+            <Setter Property="FontSize" Value="12.5" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style Selector="Button:not(.accent):not(.danger) /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ControlSubtleBgBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlSubtleBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+        </Style>
+
+        <Style Selector="Button:not(.accent):not(.danger):pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource CardHoverBgBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BrandAccentBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+        </Style>
+
+        <Style Selector="Button:not(.accent):not(.danger):disabled /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Opacity" Value="0.48" />
+        </Style>
+
+        <Style Selector="UniformGrid > Button">
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="Margin" Value="3,0" />
+        </Style>
+
+        <Style Selector="Button.accent /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource BrandPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BrandAccentBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+
+        <Style Selector="Button.accent:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource BrandPrimaryHoverBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BrandAccentBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+
+        <Style Selector="Button.accent:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource BrandPrimaryHoverBrush}" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Opacity" Value="0.9" />
+        </Style>
+
+        <Style Selector="Button.accent:disabled /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ControlSubtleBgBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlSubtleBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+            <Setter Property="Opacity" Value="0.6" />
+        </Style>
+
+        <Style Selector="Button.subtle">
+            <Setter Property="Padding" Value="10,4" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="Medium" />
+        </Style>
+
+        <Style Selector="Button.danger /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource DangerSoftBgBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource DangerSoftBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource DangerSoftFgBrush}" />
+        </Style>
+
+        <Style Selector="Button.danger:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource DangerHoverBgBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource DangerSoftFgBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource DangerSoftFgBrush}" />
+        </Style>
+
+        <Style Selector="Button.danger:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource DangerHoverBgBrush}" />
+            <Setter Property="Opacity" Value="0.88" />
+        </Style>
+
+        <Style Selector="TextBox, ComboBox">
+            <Setter Property="CornerRadius" Value="7" />
+        </Style>
+
+        <Style Selector="ListBox.cards">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+
+        <Style Selector="ListBox.cards ListBoxItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0,0,8,8" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+
+        <Style Selector="ListBox.cards ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+
+        <Style Selector="ListBox.cards ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+
+        <Style Selector="ListBox.cards ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+
+        <Style Selector="ListBox.cards ListBoxItem:selected Border.card">
+            <Setter Property="BorderBrush" Value="{DynamicResource BrandAccentBrush}" />
+            <Setter Property="Background" Value="{DynamicResource CardSelectedBgBrush}" />
+        </Style>
+
+        <!-- TODO [Úloha 1.1 / Fáza 1]: Ponechajte existujúcich 6 Setterov v Border.card (okraje a pozadie),
+             doplňte RenderTransform + Transitions a pridajte nový štýl pre hover stav Border.card:pointerover -->
+        <Style Selector="Border.card">
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="14,11" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}" />
+            <Setter Property="Background" Value="{DynamicResource CardBgBrush}" />
+        </Style>
+    </Application.Styles>
+</Application>

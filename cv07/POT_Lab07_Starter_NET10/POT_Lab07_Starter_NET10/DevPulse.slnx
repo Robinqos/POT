@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="DevPulse.App/DevPulse.App.csproj" />
+  <Project Path="DevPulse.Core/DevPulse.Core.csproj" />
+  <Project Path="DevPulse.Tests/DevPulse.Tests.csproj" />
+</Solution>

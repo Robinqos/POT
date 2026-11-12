@@ -1,0 +1,24 @@
+<Window x:Class="WpfUkazky.Okna.W13_Animacia2"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Animácia – komplexnejšia (slajd 34)" Height="450" Width="800">
+    <!-- viac animácií v jednom Storyboarde – bežia paralelne -->
+    <Rectangle x:Name="MyRectangle" Width="100" Height="100" Fill="Blue">
+        <Rectangle.Triggers>
+            <EventTrigger RoutedEvent="Rectangle.Loaded">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation
+                            Storyboard.TargetName="MyRectangle" Storyboard.TargetProperty="Width"
+                            From="100" To="200" Duration="0:0:2" AutoReverse="True" RepeatBehavior="Forever" />
+                        <DoubleAnimation
+                            Storyboard.TargetName="MyRectangle"
+                            Storyboard.TargetProperty="Height"
+                            From="100" To="50" Duration="0:0:3"
+                            AutoReverse="True" RepeatBehavior="Forever" />
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Rectangle.Triggers>
+    </Rectangle>
+</Window>

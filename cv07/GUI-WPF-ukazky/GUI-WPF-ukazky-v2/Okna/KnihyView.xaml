@@ -1,0 +1,61 @@
+<UserControl x:Class="WpfUkazky.Okna.KnihyView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:WpfUkazky.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:LibraryViewModel, IsDesignTimeCreatable=True}">
+    <!-- formulár s knihami – DataContext (LibraryViewModel) dedí od okna; použitý v W11 aj v 3D ukážke W15 -->
+    <DockPanel>
+        <Border DockPanel.Dock="Bottom" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+            <UniformGrid Rows="1" HorizontalAlignment="Right" Margin="10">
+                <Button Content="Cancel" Padding="10 0" Margin="2"/>
+                <Button Content="Ok" Padding="10 0" Margin="2"/>
+            </UniformGrid>
+        </Border>
+
+        <!-- detail vybranej knihy: DataContext = vybraná položka zoznamu -->
+        <GroupBox Header="Kniha" DockPanel.Dock="Top">
+            <Grid DataContext="{Binding SelectedItem, ElementName=Zoznam}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Label Content="Titul:" HorizontalAlignment="Right" />
+                <TextBox Grid.Column="1" Text="{Binding Title}"/>
+                <Label Grid.Row="1" Content="ISBN:" HorizontalAlignment="Right" />
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Isbn, Mode=OneWay}" IsReadOnly="True"/>
+                <Label Grid.Row="2" Content="Popis:" HorizontalAlignment="Right" />
+                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Summary}"/>
+            </Grid>
+        </GroupBox>
+
+        <!-- slajd 32 – template položky -->
+        <GroupBox Header="Zoznam titulov">
+            <ListBox x:Name="Zoznam" ItemsSource="{Binding Books}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="{Binding Number}"
+                                    Padding="10 5" Margin="10 2" FontSize="20" Foreground="Brown"/>
+                            <StackPanel>
+                                <TextBlock Text="{Binding Title}"
+                                           FontSize="20" Foreground="Brown"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Isbn}" Width="130"/>
+                                    <TextBlock Text="{Binding Summary}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </GroupBox>
+    </DockPanel>
+</UserControl>

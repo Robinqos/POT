@@ -1,0 +1,31 @@
+<Window x:Class="MvvmToolkit.Views.ShellView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:MvvmToolkit.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:ShellViewModel}"
+        Title="Ukážka MVVM – CommunityToolkit.Mvvm"
+        SizeToContent="WidthAndHeight" MinWidth="300">
+    <!-- slajd 20 – explicitný binding namiesto konvencií -->
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="80" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Label Content="Meno:" />
+        <Label Grid.Row="1" Content="Priezvisko:" />
+        <Label Grid.Row="2" Content="E-mail:" />
+        <TextBox Grid.Column="1" x:Name="TxtMeno" Text="{Binding Meno, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="TxtPrie" Text="{Binding Priezvisko, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox Grid.Row="2" Grid.Column="1" x:Name="TxtMail" Text="{Binding Mail, UpdateSourceTrigger=PropertyChanged}" />
+        <Button Grid.Row="3" Grid.ColumnSpan="2" x:Name="CmdSave" Content="Ulož" Margin="3" Command="{Binding UlozCommand}" />
+    </Grid>
+</Window>

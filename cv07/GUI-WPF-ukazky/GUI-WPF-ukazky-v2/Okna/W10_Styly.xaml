@@ -1,0 +1,33 @@
+<Window x:Class="WpfUkazky.Okna.W10_Styly"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Štýly (slajd 29)" Width="360" SizeToContent="Height">
+    <StackPanel Margin="10">
+        <StackPanel.Resources>
+            <!-- pomenovaný štýl – použije sa cez StaticResource -->
+            <Style x:Key="MyTextBox" TargetType="TextBox">
+                <Setter Property="FontSize" Value="18" />
+            </Style>
+            <!-- implicitný štýl (bez x:Key) – platí pre všetky Button -->
+            <Style TargetType="Button">
+                <Setter Property="Margin" Value="5" />
+                <Setter Property="Padding" Value="10 4" />
+            </Style>
+        </StackPanel.Resources>
+
+        <!-- štýl priamo v prvku -->
+        <TextBox Text="štýl v prvku">
+            <TextBox.Style>
+                <Style TargetType="TextBox"><Setter Property="FontSize" Value="18"/></Style>
+            </TextBox.Style>
+        </TextBox>
+
+        <TextBox Style="{StaticResource MyTextBox}" Text="štýl zo zdrojov (MyTextBox)" Margin="0 8 0 0" />
+        <TextBox Text="bez štýlu" Margin="0 8 0 0" />
+
+        <StackPanel Orientation="Horizontal" Margin="0 8 0 0">
+            <Button Content="OK" />
+            <Button Content="Zrušiť" />
+        </StackPanel>
+    </StackPanel>
+</Window>

@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="MvvmCaliburn/MvvmCaliburn.csproj" />
+  <Project Path="MvvmSpolocne/MvvmSpolocne.csproj" />
+  <Project Path="MvvmTesty/MvvmTesty.csproj" />
+  <Project Path="MvvmToolkit/MvvmToolkit.csproj" />
+</Solution>

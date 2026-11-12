@@ -1,0 +1,49 @@
+<Window x:Class="WpfUkazky.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:okna="clr-namespace:WpfUkazky.Okna"
+        Title="WPF – ukážky k prednáške"
+        Width="420" SizeToContent="Height" ResizeMode="CanMinimize"
+        WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <!-- implicitný štýl: platí pre všetky Button v okne (slajd 29) -->
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="0 3" />
+            <Setter Property="Padding" Value="8 4" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+        </Style>
+        <Style x:Key="Sekcia" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Margin" Value="0 12 0 2" />
+        </Style>
+    </Window.Resources>
+
+    <!-- Tag obsahuje typ okna, ktoré sa otvorí (spoločná obsluha Otvor_Click) -->
+    <StackPanel Margin="16">
+        <TextBlock Style="{StaticResource Sekcia}" Text="XAML" Margin="0 0 0 2" />
+        <Button Content="Kompozícia a Content (slajdy 8, 11, 12)" Tag="{x:Type okna:W01_Kompozicia}" Click="Otvor_Click" />
+
+        <TextBlock Style="{StaticResource Sekcia}" Text="Code-behind" />
+        <Button Content="Sčítanie dvoch čísel (slajd 13)" Tag="{x:Type okna:W02_CodeBehind}" Click="Otvor_Click" />
+        <Button Content="Ideme na pivo? (slajd 14)" Tag="{x:Type okna:W03_CodeBehindDynamika}" Click="Otvor_Click" />
+
+        <TextBlock Style="{StaticResource Sekcia}" Text="Viacvláknové aplikácie" />
+        <Button Content="Priamy prístup – výnimka (slajd 15)" Tag="{x:Type okna:W04_VlaknaPriamo}" Click="Otvor_Click" />
+        <Button Content="Dispatcher (slajd 16)" Tag="{x:Type okna:W05_VlaknaDispatcher}" Click="Otvor_Click" />
+        <Button Content="async/await + Progress&lt;T&gt; (slajd 17)" Tag="{x:Type okna:W06_VlaknaAsync}" Click="Otvor_Click" />
+
+        <TextBlock Style="{StaticResource Sekcia}" Text="Data binding" />
+        <Button Content="ViewModel s INotifyPropertyChanged (slajd 21)" Tag="{x:Type okna:W07_DataBindingCity}" Click="Otvor_Click" />
+        <Button Content="Binding na Slider (slajd 25)" Tag="{x:Type okna:W08_BindingSlider}" Click="Otvor_Click" />
+        <Button Content="Binding – elipsa (slajd 25)" Tag="{x:Type okna:W09_BindingElipsa}" Click="Otvor_Click" />
+        <Button Content="Štýly (slajd 29)" Tag="{x:Type okna:W10_Styly}" Click="Otvor_Click" />
+        <Button Content="Knihy – bez code-behind, DataTemplate (slajdy 30 – 32)" Tag="{x:Type okna:W11_Knihy}" Click="Otvor_Click" />
+
+        <TextBlock Style="{StaticResource Sekcia}" Text="Animácie, 3D, multimédiá" />
+        <Button Content="Animácia (slajd 33)" Tag="{x:Type okna:W12_Animacia1}" Click="Otvor_Click" />
+        <Button Content="Animácia – komplexnejšia (slajd 34)" Tag="{x:Type okna:W13_Animacia2}" Click="Otvor_Click" />
+        <Button Content="3D – tlačidlá (slajdy 35, 36)" Tag="{x:Type okna:W14_3D_Tlacidla}" Click="Otvor_Click" />
+        <Button Content="3D – formulár s knihami (slajd 37)" Tag="{x:Type okna:W15_3D_Formular}" Click="Otvor_Click" />
+        <Button Content="Multimédiá (slajd 38)" Tag="{x:Type okna:W16_Multimedia}" Click="Otvor_Click" />
+    </StackPanel>
+</Window>

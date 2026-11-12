@@ -1,0 +1,30 @@
+<Window x:Class="WpfUkazky.Okna.W09_BindingElipsa"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Binding – elipsa (slajd 25)" SizeToContent="WidthAndHeight">
+    <!-- poloha a veľkosť elipsy sú naviazané na tri posuvníky -->
+    <Canvas Width="180" Height="180">
+        <Canvas.LayoutTransform>
+            <ScaleTransform ScaleX="4" ScaleY="4"/>
+        </Canvas.LayoutTransform>
+
+        <Canvas Canvas.Left="20" Canvas.Top="20">
+            <Ellipse Stroke="Red" StrokeThickness="6"
+                     Canvas.Left="{Binding Value, ElementName=sliderX}"
+                     Canvas.Top="{Binding Value, ElementName=sliderY}"
+                     Width="{Binding Value, ElementName=sliderR}"
+                     Height="{Binding Value, ElementName=sliderR}"/>
+        </Canvas>
+        <Slider x:Name="sliderY" Height="100" Orientation="Vertical" Canvas.Top="20" Maximum="70">
+            <Slider.LayoutTransform>
+                <ScaleTransform ScaleY="-1"/>
+            </Slider.LayoutTransform>
+        </Slider>
+        <Slider x:Name="sliderX" Width="100" Canvas.Left="20" Maximum="70"/>
+        <Slider x:Name="sliderR" Width="100" Canvas.Bottom="20" Canvas.Right="20" Minimum="20" Maximum="60">
+            <Slider.LayoutTransform>
+                <RotateTransform Angle="-45"/>
+            </Slider.LayoutTransform>
+        </Slider>
+    </Canvas>
+</Window>

@@ -1,0 +1,45 @@
+<Window x:Class="WpfUkazky.Okna.W14_3D_Tlacidla"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="3D – tlačidlá (slajdy 35, 36)" Height="500" Width="800">
+    <Viewport3D x:Name="mainViewport" ClipToBounds="True">
+        <!-- Kamera -->
+        <Viewport3D.Camera>
+            <PerspectiveCamera Position="0,0,4" />
+        </Viewport3D.Camera>
+        <Viewport2DVisual3D>
+            <!-- Transformácia – otočenie -->
+            <Viewport2DVisual3D.Transform>
+                <RotateTransform3D>
+                    <RotateTransform3D.Rotation>
+                        <AxisAngleRotation3D x:Name="uiRotate" Angle="40" Axis="0, 1, 0" />
+                    </RotateTransform3D.Rotation>
+                </RotateTransform3D>
+            </Viewport2DVisual3D.Transform>
+            <!-- Kostra -->
+            <Viewport2DVisual3D.Geometry>
+                <MeshGeometry3D Positions="-1,1,-1 -1,-1,1 1,-1,0 1,1,0" TextureCoordinates="0,0 0,1 1,1 1,0" TriangleIndices="0 1 2 0 2 3"/>
+            </Viewport2DVisual3D.Geometry>
+            <!-- Textúra: na materiál s IsVisualHostMaterial sa vykreslí Visual -->
+            <Viewport2DVisual3D.Material>
+                <DiffuseMaterial Viewport2DVisual3D.IsVisualHostMaterial="True" Brush="White"/>
+            </Viewport2DVisual3D.Material>
+            <!-- Vizuál – bežné WPF prvky, ktoré ostávajú interaktívne -->
+            <Viewport2DVisual3D.Visual>
+                <StackPanel Orientation="Vertical">
+                    <Button Background="Yellow">Button1</Button>
+                    <Button Background="Aqua">Button2</Button>
+                    <Button Background="Beige">Button3</Button>
+                    <Button Background="Coral">Button4</Button>
+                </StackPanel>
+            </Viewport2DVisual3D.Visual>
+        </Viewport2DVisual3D>
+
+        <!-- Svetlo -->
+        <ModelVisual3D>
+            <ModelVisual3D.Content>
+                <DirectionalLight Color="#FFFFFFFF" Direction="0,0,-1"/>
+            </ModelVisual3D.Content>
+        </ModelVisual3D>
+    </Viewport3D>
+</Window>

@@ -1,0 +1,13 @@
+<Window x:Class="WpfUkazky.Okna.W08_BindingSlider"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Binding na Slider (slajd 25)" SizeToContent="WidthAndHeight">
+    <Canvas Width="100" Height="100">
+        <Canvas.LayoutTransform>
+            <ScaleTransform ScaleX="5" ScaleY="5"/>
+        </Canvas.LayoutTransform>
+        <Slider x:Name="slider" Width="100" Maximum="500" />
+        <!-- jednoduchý zápis bindingu (markup extension) -->
+        <Label Canvas.Top="50" Content="{Binding Path=Value, ElementName=slider}" ContentStringFormat="{}{0:N0}" />
+    </Canvas>
+</Window>

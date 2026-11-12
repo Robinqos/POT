@@ -1,0 +1,316 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:DevPulse.Core.ViewModels"
+        xmlns:models="using:DevPulse.Core.Models"
+        mc:Ignorable="d" d:DesignWidth="1180" d:DesignHeight="740"
+        x:Class="DevPulse.App.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Width="1180" Height="740" MinWidth="900" MinHeight="560"
+        Title="FRI DevPulse – Štartovacia kostra (POT Lab 07)">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
+
+    <DockPanel Margin="16">
+
+        <!-- HORNÁ LIŠTA -->
+        <Border DockPanel.Dock="Top"
+                Padding="16,11"
+                Margin="0,0,0,14"
+                CornerRadius="12"
+                BorderThickness="1"
+                BorderBrush="{DynamicResource HeaderBorderBrush}"
+                Background="{DynamicResource HeaderBgBrush}">
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <Border Width="36" Height="36"
+                            CornerRadius="9"
+                            Background="{DynamicResource BrandPrimaryBrush}"
+                            VerticalAlignment="Center">
+                        <PathIcon Data="{StaticResource IconPulse}"
+                                  Width="18" Height="18"
+                                  Foreground="White" />
+                    </Border>
+
+                    <StackPanel Spacing="1" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="FRI DevPulse"
+                                       FontSize="17"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       VerticalAlignment="Center" />
+                            <Border CornerRadius="999"
+                                    Padding="8,2"
+                                    Background="{DynamicResource BrandSoftBgBrush}"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="Starter · Lab 07"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource BrandSoftFgBrush}" />
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Text="Doplňte úlohy podľa návodu v POT_Lab07_Navod.docx alebo prezentácie"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource TextMutedBrush}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- TODO [Úloha 1 / Fáza 1 – Ručne bez AI]:
+                     1. Previažte TextBox obojsmerne s posuvníkom:
+                        Text="{Binding #ZoomSlider.Value, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:F1}}"
+                     2. K obom existujúcim nadpisom kartičiek (<TextBlock ... Text="{Binding Title}" ...>) pridajte atribút
+                        FontSize="{Binding #ZoomSlider.Value}" (pri úlohe v pravom paneli zachovajte Grid.Column="1"!). -->
+                <Border Grid.Column="1"
+                        MinHeight="46"
+                        Padding="12,4"
+                        CornerRadius="8"
+                        BorderThickness="1"
+                        BorderBrush="{DynamicResource ControlSubtleBorderBrush}"
+                        Background="{DynamicResource ControlSubtleBgBrush}"
+                        VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <TextBlock Text="Písmo"
+                                   FontSize="12"
+                                   FontWeight="Medium"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   VerticalAlignment="Center" />
+                        <Slider x:Name="ZoomSlider"
+                                Width="115"
+                                Minimum="12"
+                                Maximum="20"
+                                Value="14.5"
+                                TickFrequency="0.5"
+                                IsSnapToTickEnabled="True"
+                                VerticalAlignment="Center" />
+                        <TextBox Width="56"
+                                 Text="14,5"
+                                 HorizontalContentAlignment="Center"
+                                 VerticalAlignment="Center" />
+                        <TextBlock Text="px"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource TextMutedBrush}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2"
+                        MinHeight="46"
+                        Padding="12,4"
+                        CornerRadius="8"
+                        BorderThickness="1"
+                        BorderBrush="{DynamicResource ControlSubtleBorderBrush}"
+                        Background="{DynamicResource ControlSubtleBgBrush}"
+                        VerticalAlignment="Center">
+                    <ToggleSwitch IsChecked="True"
+                                  OnContent="Dark"
+                                  OffContent="Light"
+                                  Margin="0"
+                                  IsCheckedChanged="ThemeSwitch_OnIsCheckedChanged"
+                                  VerticalAlignment="Center" />
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- SPODNÝ STAVOVÝ RIADOK -->
+        <Border DockPanel.Dock="Bottom"
+                Padding="14,8"
+                Margin="0,14,0,0"
+                CornerRadius="10"
+                BorderThickness="1"
+                BorderBrush="{DynamicResource HeaderBorderBrush}"
+                Background="{DynamicResource HeaderBgBrush}">
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="14">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8" VerticalAlignment="Center">
+                    <Ellipse Width="8" Height="8"
+                             Fill="{DynamicResource BrandAccentBrush}"
+                             VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding StatusMessage}"
+                               FontSize="12.5"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" />
+                </Grid>
+                <!-- TODO [Úloha 3.1 / Fáza 3]: Pridajte ProgressBar so stĺpcom Grid.Column="1" a Width="200",
+                     Minimum="0" Maximum="100" Value="{Binding ProgressPercent}" ShowProgressText="True" IsVisible="{Binding IsBusy}" -->
+                <!-- TODO [Bonus]: Pridajte do Grid.Column="2" tlačidlo Content="Idem na pivo" s TranslateTransform a DoubleTransition -->
+            </Grid>
+        </Border>
+
+        <!-- HLAVNÝ DVOJSTĹPCOVÝ OBSAH -->
+        <Grid ColumnDefinitions="1.28*,14,1*">
+
+            <!-- Ľavý panel: RSS / Atom Články -->
+            <Border Grid.Column="0" Classes="panel">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Spacing="10" Margin="0,0,0,12">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                            <Border Width="26" Height="26"
+                                    CornerRadius="7"
+                                    Background="{DynamicResource BrandSoftBgBrush}"
+                                    VerticalAlignment="Center">
+                                <PathIcon Data="{StaticResource IconRss}"
+                                          Width="13" Height="13"
+                                          Foreground="{DynamicResource BrandSoftFgBrush}" />
+                            </Border>
+
+                            <TextBlock Grid.Column="1"
+                                       Text="Technologický a univerzitný kanál"
+                                       FontSize="15"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       VerticalAlignment="Center" />
+
+                            <Border Grid.Column="2"
+                                    CornerRadius="999"
+                                    Padding="9,2"
+                                    BorderThickness="1"
+                                    BorderBrush="{DynamicResource ControlSubtleBorderBrush}"
+                                    Background="{DynamicResource ControlSubtleBgBrush}"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Articles.Count, StringFormat='{}{0} článkov'}"
+                                           FontSize="11"
+                                           FontWeight="Medium"
+                                           Foreground="{DynamicResource TextMutedBrush}" />
+                            </Border>
+                        </Grid>
+
+                        <!-- TODO [Úloha 3.1 / Fáza 3]: Doplňte sem Grid (ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="6") s:
+                             - ComboBox (ItemsSource="{Binding Sources}" SelectedItem="{Binding SelectedSource}" HorizontalAlignment="Stretch")
+                             - Button Grid.Column="1" Content="Načítať" Classes="accent" Command="{Binding LoadFeedCommand}"
+                             - Button Grid.Column="2" Content="Analyzovať" Command="{Binding AnalyzeFeedCommand}"
+                             - Button Grid.Column="3" Content="Zastaviť" Classes="danger" Command="{Binding AnalyzeFeedCancelCommand}"
+                                      IsVisible="{Binding AnalyzeFeedCommand.IsRunning}" -->
+                    </StackPanel>
+
+                    <ListBox Classes="cards" ItemsSource="{Binding Articles}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="models:FeedArticle">
+                                <Border Classes="card">
+                                    <StackPanel Spacing="5">
+                                        <TextBlock Text="{Binding Title}"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   TextWrapping="Wrap" />
+
+                                        <TextBlock Text="{Binding PublishedText}"
+                                                   FontSize="11.5"
+                                                   Foreground="{DynamicResource TextMutedBrush}" />
+
+                                        <TextBlock Text="{Binding Summary}"
+                                                   FontSize="12.5"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   TextWrapping="Wrap" />
+
+                                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="6" Margin="0,4,0,0">
+                                            <Border CornerRadius="6"
+                                                    Padding="8,3"
+                                                    Background="{DynamicResource MetricPillBgBrush}"
+                                                    HorizontalAlignment="Left"
+                                                    VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding MetricsSummary}"
+                                                           FontSize="11.5"
+                                                           FontWeight="Medium"
+                                                           Foreground="{DynamicResource MetricPillFgBrush}"
+                                                           TextTrimming="CharacterEllipsis" />
+                                            </Border>
+                                            <!-- TODO [Úloha 2.1 / Fáza 2]: Doplňte sem tlačidlá (Classes="subtle"):
+                                                 - Grid.Column="1": Content="Otvoriť" (OpenArticleCommand, CommandParameter="{Binding Link}")
+                                                 - Grid.Column="2": Content="Do úloh" (AddArticleToTasksCommand, CommandParameter="{Binding}")
+                                                 cez $parent[Window].((vm:MainWindowViewModel)DataContext) -->
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+
+            <!-- Pravý panel: TODO úlohy -->
+            <Border Grid.Column="2" Classes="panel">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Spacing="10" Margin="0,0,0,12">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                            <Border Width="26" Height="26"
+                                    CornerRadius="7"
+                                    Background="{DynamicResource BrandSoftBgBrush}"
+                                    VerticalAlignment="Center">
+                                <PathIcon Data="{StaticResource IconCheckList}"
+                                          Width="13" Height="13"
+                                          Foreground="{DynamicResource BrandSoftFgBrush}" />
+                            </Border>
+
+                            <TextBlock Grid.Column="1"
+                                       Text="Študijné a šprintové úlohy"
+                                       FontSize="15"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       VerticalAlignment="Center" />
+
+                            <Border Grid.Column="2"
+                                    CornerRadius="999"
+                                    Padding="9,2"
+                                    BorderThickness="1"
+                                    BorderBrush="{DynamicResource ControlSubtleBorderBrush}"
+                                    Background="{DynamicResource ControlSubtleBgBrush}"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="{Binding TaskStatsText}"
+                                           FontSize="11"
+                                           FontWeight="Medium"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                            </Border>
+                        </Grid>
+
+                        <!-- TODO [Úloha 2.1 / Fáza 2]: Doplňte sem Grid (ColumnDefinitions="*,112,Auto" ColumnSpacing="6") s:
+                             - TextBox PlaceholderText="Zadajte novú úlohu…" Text="{Binding NewTaskTitle}"
+                             - ComboBox Grid.Column="1" ItemsSource="{Binding Priorities}" SelectedItem="{Binding SelectedPriority}" HorizontalAlignment="Stretch"
+                             - Button Grid.Column="2" Content="Pridať" Classes="accent" IsDefault="True" Command="{Binding AddTaskCommand}" -->
+                    </StackPanel>
+
+                    <!-- POZOR: V DockPaneli musia byť prvky s DockPanel.Dock="Bottom" zapísané PRED posledným prvkom (<ListBox>),
+                         aby zoznam správne vyplnil zvyšný priestor okna! -->
+                    <UniformGrid DockPanel.Dock="Bottom" Rows="1" Columns="2" Margin="0,8,0,0">
+                        <!-- TODO [Úloha 2.1 / Fáza 2]: Doplňte sem 2 tlačidlá:
+                             - Content="Odstrániť vybranú" (Command="{Binding RemoveSelectedTaskCommand}")
+                             - Content="Vyčistiť splnené" (Command="{Binding ClearCompletedTasksCommand}") -->
+                    </UniformGrid>
+
+                    <ListBox Classes="cards"
+                             ItemsSource="{Binding Tasks}"
+                             SelectedItem="{Binding SelectedTask}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="vm:TaskItemViewModel">
+                                <Border Classes="card">
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                        <CheckBox IsChecked="{Binding IsCompleted}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding Title}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   VerticalAlignment="Center"
+                                                   TextWrapping="Wrap" />
+                                        <Border Grid.Column="2"
+                                                CornerRadius="999"
+                                                Padding="10,3"
+                                                VerticalAlignment="Center"
+                                                Background="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}">
+                                            <TextBlock Text="{Binding PriorityLabel}"
+                                                       Foreground="White"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold" />
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+
+        </Grid>
+    </DockPanel>
+</Window>

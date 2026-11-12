@@ -1,0 +1,17 @@
+<Window x:Class="WpfUkazky.Okna.W04_VlaknaPriamo"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Vlákna – priamy prístup (slajd 15)" SizeToContent="WidthAndHeight">
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="160"/></Grid.ColumnDefinitions>
+        <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+        <Label Content="Počet prebehnutých cyklov" />
+        <TextBox x:Name="textBox1" Grid.Column="1" Margin="4" IsReadOnly="True" />
+        <UniformGrid Grid.Row="1" Grid.ColumnSpan="2" Rows="1">
+            <Button Content="Štart" Margin="4" Click="button1_Click" />
+            <Button Content="Stop" Margin="4" Click="button2_Click" />
+        </UniformGrid>
+        <TextBlock Grid.Row="2" Grid.ColumnSpan="2" Margin="4" MaxWidth="380" TextWrapping="Wrap" Foreground="Gray"
+                   Text="Spustite v debuggeri (F5): Visual Studio sa zastaví na InvalidOperationException – GUI nedovolí meniť prvky z iného vlákna." />
+    </Grid>
+</Window>

@@ -1,0 +1,28 @@
+<Window x:Class="WpfUkazky.Okna.W07_DataBindingCity"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Width="320" SizeToContent="Height">
+    <!-- slajd 21 – DataContext nastavený v konštruktore okna -->
+    <StackPanel Margin="10">
+        <TextBlock Text="Create a shipment" FontSize="18" FontWeight="Bold" Foreground="DarkBlue" />
+        <TextBlock Text="From Stamford, CT, USA to:" Margin="0 0 0 8" />
+        <Grid>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="60"/><ColumnDefinition/></Grid.ColumnDefinitions>
+            <Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+            <Label Content="Country:" />
+            <ComboBox Grid.Column="1" Margin="2" IsEditable="True" Text="{Binding Country, UpdateSourceTrigger=PropertyChanged}">
+                <ComboBoxItem Content="USA" />
+                <ComboBoxItem Content="Slovakia" />
+            </ComboBox>
+            <Label Content="City:" Grid.Row="1" />
+            <TextBox Grid.Row="1" Grid.Column="1" Margin="2"
+                     Text="{Binding City,
+                        UpdateSourceTrigger=PropertyChanged}" />
+        </Grid>
+        <TextBlock Text="Shipment cost: $5.99" FontSize="16" Margin="0 8" />
+        <Border BorderBrush="Gray" BorderThickness="1" Padding="4" MinHeight="60">
+            <!-- mení sa pri každom stlačení klávesu vďaka UpdateSourceTrigger=PropertyChanged -->
+            <TextBlock Text="{Binding Summary}" />
+        </Border>
+    </StackPanel>
+</Window>
